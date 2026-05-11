@@ -881,21 +881,68 @@ function countJournalDays(d){const set=new Set();Object.entries(d.journal||{}).f
 function maxHabitStreak(d){let max=0;(d.habits||[]).forEach(h=>{const s=calcStreak(h.id);if(s>max)max=s;});return max;}
 function hasPerfectHabitDay(d){if(!d.habits||d.habits.length===0)return false;return Object.values(d.habitLogs||{}).some(day=>d.habits.every(h=>day[h.id]));}
 function hasPerfectDay(d){return Object.entries(d.pointsLog||{}).some(([k,l])=>l.pos>=20&&l.neg===0);}
-function cleanLectureWeeks(d){const weeks=new Map();Object.entries(d.tasks||{}).forEach(([k,day])=>{const date=dateFromKey(k);const ws=new Date(date);ws.setDate(date.getDate()-dayOfWeek(date));const wk=todayKey(ws);if(!weeks.has(wk))weeks.set(wk,{att:0,skip:0});Object.entries(day).forEach(([tk,t])=>{if(tk.startsWith('lec_')){if(t.done)weeks.get(wk).att++;if(t.skipped)weeks.get(wk).skip++;}});});let n=0;weeks.forEach(w=>{if(w.att>0&&w.skip===0)n++;});return n;}
+function cleanLectureWeeks(d){
+  const weeks=new Map();
+  Object.entries(d.tasks||{}).forEach(([k,day])=>{
+    const date=dateFromKey(k);
+    const ws=new Date(date);
+    ws.setDate(date.getDate()-dayOfWeek(date));
+    const wk=todayKey(ws);
+    if(!weeks.has(wk))weeks.set(wk,{att:0,skip:0});
+    Object.entries(day).forEach(([tk,t])=>{
+      if(tk.startsWith('lec_')){
+        if(t.done)weeks.get(wk).att++;
+        if(t.skipped)weeks.get(wk).skip++;
+      }
+    });
+  });
+  let n=0;
+  weeks.forEach(w=>{
+    // Минимум 3 посещённые пары и ноль прогулов
+    if(w.att>=3&&w.skip===0)n++;
+  });
+  return n;
+}
 
 function checkAchievements(){
   const unlocked=[];
   ACHIEVEMENTS.forEach(a=>{
-    if(DATA.achievements[a.id])return;
-    if(a.check(DATA)){
+    const condMet=a.check(DATA);
+    const has=!!DATA.achievements[a.id];
+    if(condMet&&!has){
       DATA.achievements[a.id]={unlockedAt:Date.now()};
       unlocked.push(a);
+    }else if(!condMet&&has){
+      // Отзываем если условие больше не выполняется
+      delete DATA.achievements[a.id];
     }
   });
   if(unlocked.length){
     saveData();
     showAchievementToast(unlocked[0]);
-    if(unlocked.length>1){setTimeout(()=>showAchievementToast(unlocked[1]),3500);}
+    if(unlocked.length>1)setTimeout(()=>showAchievementToast(unlocked[1]),3500);
+  }
+  return unlocked;
+}
+
+function checkAchievements(){
+  const unlocked=[];
+  ACHIEVEMENTS.forEach(a=>{
+    const conditionMet=a.check(DATA);
+    const alreadyHas=!!DATA.achievements[a.id];
+    if(conditionMet&&!alreadyHas){
+      DATA.achievements[a.id]={unlockedAt:Date.now()};
+      unlocked.push(a);
+    }else if(!conditionMet&&alreadyHas&&a.revokable!==false){
+      // Отзываем если условие больше не выполняется
+      // Только для достижений которые можно отозвать (не дата-based)
+      delete DATA.achievements[a.id];
+    }
+  });
+  if(unlocked.length){
+    saveData();
+    showAchievementToast(unlocked[0]);
+    if(unlocked.length>1)setTimeout(()=>showAchievementToast(unlocked[1]),3500);
   }
   return unlocked;
 }
@@ -1347,17 +1394,22 @@ function markDone(id,isLecture){
   const day=SCHED_DAY;
   if(!DATA.tasks[day])DATA.tasks[day]={};
   const t=DATA.tasks[day][id]||{};
+
   if(t.done){
+    // Уже отмечено — снимаем галочку
     t.done=false;
     addPoints(isLecture?-POINTS.lectureAttended:-POINTS.taskDone,'undo done',day);
   }else{
+    // Если был пропуск — сначала отменяем его (возвращаем списанные баллы)
     if(t.skipped){
-      addPoints(isLecture?-POINTS.lectureSkipped*-1:POINTS.taskSkipped*-1,'undo skip',day);
       t.skipped=false;
+      addPoints(isLecture?Math.abs(POINTS.lectureSkipped):Math.abs(POINTS.taskSkipped),'undo skip',day);
     }
+    // Ставим галочку
     t.done=true;
     addPoints(isLecture?POINTS.lectureAttended:POINTS.taskDone,'done',day);
   }
+
   DATA.tasks[day][id]=t;
   saveData();
   renderSchedule();
@@ -1368,18 +1420,23 @@ function markSkip(id,isLecture){
   const day=SCHED_DAY;
   if(!DATA.tasks[day])DATA.tasks[day]={};
   const t=DATA.tasks[day][id]||{};
+
   if(t.skipped){
+    // Уже пропущено — отменяем пропуск (возвращаем баллы)
     t.skipped=false;
-    addPoints(isLecture?-POINTS.lectureSkipped:-POINTS.taskSkipped,'undo skip',day);
+    addPoints(isLecture?Math.abs(POINTS.lectureSkipped):Math.abs(POINTS.taskSkipped),'undo skip',day);
   }else{
+    // Если было посещение — сначала отменяем его
     if(t.done){
-      addPoints(isLecture?-POINTS.lectureAttended:-POINTS.taskDone,'undo done',day);
       t.done=false;
+      addPoints(isLecture?-POINTS.lectureAttended:-POINTS.taskDone,'undo done',day);
     }
+    // Ставим пропуск
     t.skipped=true;
     addPoints(isLecture?POINTS.lectureSkipped:POINTS.taskSkipped,'skip',day);
     if(isLecture)showToast('Пара пропущена · '+POINTS.lectureSkipped+' баллов','bad');
   }
+
   DATA.tasks[day][id]=t;
   saveData();
   renderSchedule();
@@ -1778,7 +1835,7 @@ function renderSettings(){
       <div class="set-row"><div class="set-label">Привычка</div><div style="color:var(--good);font-weight:500;">+${POINTS.habitDone}</div></div>
     </div>
     
-    <div style="text-align:center;font-size:11px;color:var(--muted);margin-top:24px;">tempo · v1.0</div>
+    <div style="text-align:center;font-size:11px;color:var(--muted);margin-top:24px;">Tempo 2.2</div>
   `;
   
   root.innerHTML=html;
@@ -2882,7 +2939,7 @@ function openAbout(){
 
       <div class="about-section">
         <div class="about-section-title">Версия</div>
-        <div class="about-text" style="color:var(--muted);">Tempo 2.2 · Один HTML-файл · Без зависимостей</div>
+        <div class="about-text" style="color:var(--muted);">Tempo 2.2</div>
       </div>
     </div>
   `;
