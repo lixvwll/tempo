@@ -1,0 +1,25 @@
+{
+  "name": "Tempo",
+  "short_name": "Tempo",
+  "description": "Твой день под контролем",
+  "start_url": "/tempo/",
+  "scope": "/tempo/",
+  "display": "standalone",
+  "background_color": "#0e0e0e",
+  "theme_color": "#0e0e0e",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/tempo/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/tempo/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
