@@ -67,23 +67,11 @@
         <div class="tb-logo">tempo</div>
         <div class="tb-pts" id="tb-pts">0 баллов</div>
       </div>
-      <div class="tb-right">
-        <button class="tb-btn" onclick="openStoriesFromBar()" title="Советы и новости" id="tb-stories-btn">
-          <svg viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
-          <span class="tb-notif-dot" id="tb-stories-dot" style="display:none;"></span>
-        </button>
-        <button class="tb-btn" onclick="openAbout()" title="О приложении">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        </button>
-        <button class="tb-btn" onclick="openAchievements()" title="Достижения">
-          <svg viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
-        </button>
-        <button class="tb-btn" onclick="toggleTheme()" title="Тема">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-        </button>
-        <button class="tb-btn" onclick="openSidebar()" title="Меню">
-          <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-        </button>
+      <div class="tb-actions">
+        <button class="tb-icon tb-stories-btn" onclick="openStoriesFromBar()" title="Советы и новости" id="tb-stories-btn">✦<span class="tb-stories-dot" id="tb-stories-dot" style="display:none;"></span></button>
+        <button class="tb-icon" onclick="openAbout()" title="О приложении">i</button>
+        <button class="tb-icon" onclick="openAchievements()" title="Достижения">★</button>
+        <button class="tb-icon" id="theme-toggle" onclick="toggleTheme()" title="Тема">◐</button>
       </div>
     </div>
 
@@ -99,94 +87,16 @@
 
   <div class="bottom-nav" id="bottom-nav" style="display:none;">
     <div class="bn-inner">
-      <button class="bn-btn" data-screen="schedule" onclick="navTo('schedule')">
-        <div class="bn-icon-box"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="4" x2="9" y2="9"/><line x1="15" y1="4" x2="15" y2="9"/></svg></div>
-        <span class="bn-label">День</span>
-      </button>
-      <button class="bn-btn" data-screen="stats" onclick="navTo('stats')">
-        <div class="bn-icon-box"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
-        <span class="bn-label">Статы</span>
-      </button>
-      <button class="bn-btn center active" data-screen="home" onclick="navTo('home')">
-        <div class="bn-icon-box"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="9" stroke-dasharray="2 3"/></svg></div>
-        <span class="bn-label">Сейчас</span>
-      </button>
-      <button class="bn-btn" data-screen="habits" onclick="navTo('habits')">
-        <div class="bn-icon-box"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="m9 12 2 2 4-4"/></svg></div>
-        <span class="bn-label">Привычки</span>
-      </button>
-      <button class="bn-btn" data-screen="journal" onclick="navTo('journal')">
-        <div class="bn-icon-box"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg></div>
-        <span class="bn-label">Дневник</span>
-      </button>
+      <button class="bn-btn active" data-screen="home" onclick="navTo('home')"><span class="bn-icon">●</span><span>Сейчас</span></button>
+      <button class="bn-btn" data-screen="schedule" onclick="navTo('schedule')"><span class="bn-icon">▤</span><span>День</span></button>
+      <button class="bn-btn" data-screen="stats" onclick="navTo('stats')"><span class="bn-icon">▲</span><span>Статы</span></button>
+      <button class="bn-btn" data-screen="challenges" onclick="navTo('challenges')"><span class="bn-icon">◆</span><span>Челлендж</span></button>
+      <button class="bn-btn" data-screen="journal" onclick="navTo('journal')"><span class="bn-icon">✎</span><span>Дневник</span></button>
+      <button class="bn-btn" data-screen="habits" onclick="navTo('habits')"><span class="bn-icon">◇</span><span>Привычки</span></button>
+      <button class="bn-btn" data-screen="settings" onclick="navTo('settings')"><span class="bn-icon">⚙</span><span>Ещё</span></button>
     </div>
   </div>
 
-</div>
-
-<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
-<div class="sidebar-panel" id="sidebar-panel">
-  <div class="sb-head">
-    <div class="sb-logo">tempo</div>
-    <button class="sb-close-btn" onclick="closeSidebar()">
-      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
-  </div>
-  <div class="sb-body">
-    <div class="sb-section">
-      <div class="sb-section-lbl">Разделы</div>
-      <div class="sb-row" onclick="closeSidebar();navTo('challenges')">
-        <div class="sb-row-icon"><svg viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg></div>
-        <div class="sb-row-info"><div class="sb-row-name">Челленджи</div><div class="sb-row-desc">Твои активные вызовы</div></div>
-        <span class="sb-row-arr">›</span>
-      </div>
-    </div>
-    <div class="sb-section">
-      <div class="sb-section-lbl">Настройки</div>
-      <div class="sb-row" onclick="closeSidebar();navTo('settings')">
-        <div class="sb-row-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="4" x2="9" y2="9"/><line x1="15" y1="4" x2="15" y2="9"/></svg></div>
-        <div class="sb-row-info"><div class="sb-row-name">Расписание пар</div><div class="sb-row-desc">Добавить и редактировать</div></div>
-        <span class="sb-row-arr">›</span>
-      </div>
-      <div class="sb-row" onclick="closeSidebar();setTimeout(()=>openSettingsSection('profile'),300)">
-        <div class="sb-row-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
-        <div class="sb-row-info"><div class="sb-row-name">Профиль</div><div class="sb-row-desc" id="sb-profile-desc">Имя и данные</div></div>
-        <span class="sb-row-arr">›</span>
-      </div>
-      <div class="sb-row" onclick="closeSidebar();setTimeout(()=>openSettingsSection('theme'),300)">
-        <div class="sb-row-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></div>
-        <div class="sb-row-info"><div class="sb-row-name">Тема оформления</div><div class="sb-row-desc" id="sb-theme-desc">Тёмная</div></div>
-        <span class="sb-row-arr">›</span>
-      </div>
-      <div class="sb-row" onclick="closeSidebar();setTimeout(requestNotifPermission,300)">
-        <div class="sb-row-icon"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
-        <div class="sb-row-info"><div class="sb-row-name">Уведомления</div><div class="sb-row-desc">За 15 минут до пары</div></div>
-        <span class="sb-row-arr">›</span>
-      </div>
-      <div class="sb-row" onclick="closeSidebar();setTimeout(exportData,300)">
-        <div class="sb-row-icon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
-        <div class="sb-row-info"><div class="sb-row-name">Экспорт данных</div><div class="sb-row-desc" id="sb-export-desc">Сохранить JSON</div></div>
-        <span class="sb-row-arr">›</span>
-      </div>
-      <div class="sb-row" onclick="closeSidebar();setTimeout(triggerImport,300)">
-        <div class="sb-row-icon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 5 17 10"/><line x1="12" y1="5" x2="12" y2="17"/></svg></div>
-        <div class="sb-row-info"><div class="sb-row-name">Импорт данных</div><div class="sb-row-desc">Загрузить из файла</div></div>
-        <span class="sb-row-arr">›</span>
-      </div>
-    </div>
-    <div class="sb-section">
-      <div class="sb-section-lbl">О приложении</div>
-      <div class="sb-row" onclick="closeSidebar();setTimeout(openAbout,300)">
-        <div class="sb-row-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
-        <div class="sb-row-info"><div class="sb-row-name">Tempo</div><div class="sb-row-desc">Версия 2.4 · Локально</div></div>
-        <span class="sb-row-arr">›</span>
-      </div>
-    </div>
-    <div class="sb-eco">
-      <div class="sb-eco-icon">🌱</div>
-      <div class="sb-eco-text">Никаких серверов. Твои данные только у тебя — и планета скажет спасибо.</div>
-    </div>
-  </div>
 </div>
 
 <div class="overlay" id="overlay"><div class="panel" id="panel"></div></div>
