@@ -649,6 +649,9 @@ textarea.field-inp{resize:vertical;min-height:60px;line-height:1.5;}
   display:none;
   flex-direction:column;
   animation:storiesIn 0.28s cubic-bezier(0.2,0,0.2,1);
+  -webkit-user-select:none;
+  user-select:none;
+  -webkit-touch-callout:none;
 }
 .stories.open{display:flex;}
 @keyframes storiesIn{
