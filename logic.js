@@ -324,8 +324,14 @@ function goHome(){
 function navTo(screen){
   CURRENT_SCREEN=screen;
   document.querySelectorAll('.main-screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById('ms-'+screen).classList.add('active');
-  document.querySelectorAll('.bn-btn').forEach(b=>b.classList.toggle('active',b.dataset.screen===screen));
+  const ms=document.getElementById('ms-'+screen);
+  if(ms)ms.classList.add('active');
+  document.querySelectorAll('.bn-btn').forEach(b=>{
+    b.classList.remove('active');
+    if(b.dataset.screen===screen)b.classList.add('active');
+    // keep center class on home button
+    if(b.dataset.screen==='home')b.classList.add('center');
+  });
   if(HOME_TIMER){clearInterval(HOME_TIMER);HOME_TIMER=null;}
   if(screen==='home')renderHome();
   else if(screen==='schedule')renderSchedule();
@@ -336,6 +342,35 @@ function navTo(screen){
   else if(screen==='settings')renderSettings();
   updateTopBar();
 }
+
+function openSidebar(){
+  const p=document.getElementById('sidebar-panel');
+  const o=document.getElementById('sidebar-overlay');
+  if(!p||!o)return;
+  p.classList.remove('closing');
+  o.classList.add('open');
+  p.style.display='flex';
+  const profDesc=document.getElementById('sb-profile-desc');
+  if(profDesc&&DATA)profDesc.textContent=DATA.name||'Имя и данные';
+  const themeDesc=document.getElementById('sb-theme-desc');
+  if(themeDesc)themeDesc.textContent=document.documentElement.getAttribute('data-theme')==='dark'?'Тёмная':'Светлая';
+  const expDesc=document.getElementById('sb-export-desc');
+  if(expDesc&&DATA&&DATA.lastExport){
+    const d=Math.floor((Date.now()-DATA.lastExport)/86400000);
+    expDesc.textContent=d===0?'Экспорт сегодня':d===1?'Экспорт вчера':`Экспорт ${d} дн. назад`;
+  }
+}
+
+function closeSidebar(){
+  const p=document.getElementById('sidebar-panel');
+  const o=document.getElementById('sidebar-overlay');
+  if(!p||!o)return;
+  p.classList.add('closing');
+  o.classList.remove('open');
+  setTimeout(()=>{p.style.display='none';p.classList.remove('closing');},220);
+}
+
+function openSettingsSection(){navTo('settings');}
 
 function updateTopBar(){
   const el=document.getElementById('tb-pts');
