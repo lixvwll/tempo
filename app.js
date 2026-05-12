@@ -1833,5 +1833,189 @@ function exportDataAndDismiss(){
   dismissCloseWarn();
 }
 
+// === STORIES ===
+let STORIES_DATA=null;
+let STORIES_IDX=0;
+let STORIES_TIMER=null;
+let STORIES_DURATION=6000;
+let STORIES_PAUSED=false;
+let STORIES_START_TIME=0;
+let STORIES_ELAPSED=0;
+
+const STORIES_SEEN_KEY='tempo_stories_seen';
+
+function loadStoriesSeen(){
+  try{return JSON.parse(localStorage.getItem(STORIES_SEEN_KEY)||'[]');}catch(e){return [];}
+}
+function saveStoriesSeen(arr){localStorage.setItem(STORIES_SEEN_KEY,JSON.stringify(arr));}
+
+async function fetchStories(){
+  if(STORIES_DATA)return STORIES_DATA;
+  try{
+    const res=await fetch('news.json?_='+Date.now());
+    if(!res.ok)throw new Error('not ok');
+    const data=await res.json();
+    STORIES_DATA=data;
+    return data;
+  }catch(e){
+    // fallback на встроенные если файл недоступен
+    STORIES_DATA={version:'1.0',items:[
+      {id:'fallback',type:'tip',emoji:'💾',title:'Не теряй данные',body:'Экспортируй JSON раз в неделю и храни в облаке. Данные в браузере исчезнут если очистить кэш.',color:'amber',date:''}
+    ]};
+    return STORIES_DATA;
+  }
+}
+
+async function checkStoriesUnread(){
+  const data=await fetchStories();
+  if(!data||!data.items)return false;
+  const seen=loadStoriesSeen();
+  const hasUnread=data.items.some(i=>!seen.includes(i.id));
+  const dot=document.getElementById('tb-stories-dot');
+  if(dot)dot.style.display=hasUnread?'block':'none';
+  return hasUnread;
+}
+
+async function openStoriesFromBar(){
+  const data=await fetchStories();
+  if(!data||!data.items||data.items.length===0){
+    showToast('Советы пока не загружены');
+    return;
+  }
+  STORIES_IDX=0;
+  showStory();
+  document.getElementById('stories').classList.add('open');
+  document.getElementById('stories').classList.remove('closing');
+}
+
+function showStory(){
+  if(!STORIES_DATA||!STORIES_DATA.items[STORIES_IDX])return;
+  const item=STORIES_DATA.items[STORIES_IDX];
+  const body=document.getElementById('st-body');
+  
+  // Установить цвет фона
+  body.parentElement.querySelector('.st-body').className='st-body st-bg-'+(item.color||'default');
+  
+  document.getElementById('st-emoji').textContent=item.emoji||'✨';
+  document.getElementById('st-title').textContent=item.title||'';
+  document.getElementById('st-text').textContent=item.body||'';
+  document.getElementById('st-meta-icon').textContent=item.type==='update'?'◆':'💡';
+  document.getElementById('st-meta-time').textContent=item.type==='update'?'обновление':'совет';
+  
+  // Прогресс-бары
+  const row=document.getElementById('st-progress-row');
+  row.innerHTML='';
+  STORIES_DATA.items.forEach((_,i)=>{
+    const bar=document.createElement('div');
+    bar.className='st-progress'+(i<STORIES_IDX?' done':'');
+    const fill=document.createElement('div');
+    fill.className='st-progress-fill';
+    if(i===STORIES_IDX){
+      fill.id='st-progress-active';
+    }else if(i<STORIES_IDX){
+      fill.style.width='100%';
+    }
+    bar.appendChild(fill);
+    row.appendChild(bar);
+  });
+  
+  // Отметить как просмотренное
+  const seen=loadStoriesSeen();
+  if(!seen.includes(item.id)){
+    seen.push(item.id);
+    saveStoriesSeen(seen);
+  }
+  
+  startStoryTimer();
+}
+
+function startStoryTimer(){
+  if(STORIES_TIMER)cancelAnimationFrame(STORIES_TIMER);
+  STORIES_START_TIME=Date.now();
+  STORIES_ELAPSED=0;
+  STORIES_PAUSED=false;
+  
+  function tick(){
+    if(STORIES_PAUSED)return;
+    const now=Date.now();
+    const elapsed=STORIES_ELAPSED+(now-STORIES_START_TIME);
+    const pct=Math.min(100,(elapsed/STORIES_DURATION)*100);
+    const fill=document.getElementById('st-progress-active');
+    if(fill)fill.style.width=pct+'%';
+    if(pct>=100){
+      storyNext();
+      return;
+    }
+    STORIES_TIMER=requestAnimationFrame(tick);
+  }
+  STORIES_TIMER=requestAnimationFrame(tick);
+}
+
+function storyNext(){
+  if(STORIES_TIMER)cancelAnimationFrame(STORIES_TIMER);
+  STORIES_IDX++;
+  if(STORIES_IDX>=STORIES_DATA.items.length){
+    closeStories();
+    return;
+  }
+  showStory();
+}
+
+function storyPrev(){
+  if(STORIES_TIMER)cancelAnimationFrame(STORIES_TIMER);
+  if(STORIES_IDX>0){
+    STORIES_IDX--;
+    showStory();
+  }else{
+    showStory();
+  }
+}
+
+function closeStories(){
+  if(STORIES_TIMER)cancelAnimationFrame(STORIES_TIMER);
+  const el=document.getElementById('stories');
+  el.classList.add('closing');
+  setTimeout(()=>{
+    el.classList.remove('open','closing');
+    checkStoriesUnread();
+  },220);
+}
+
+// Hold to pause (long press)
+document.addEventListener('DOMContentLoaded',()=>{
+  const stEl=document.getElementById('stories');
+  if(!stEl)return;
+  let holdTimer=null;
+  const startHold=(e)=>{
+    if(e.target.classList.contains('st-close'))return;
+    holdTimer=setTimeout(()=>{
+      STORIES_PAUSED=true;
+      STORIES_ELAPSED+=Date.now()-STORIES_START_TIME;
+    },200);
+  };
+  const endHold=()=>{
+    if(holdTimer){clearTimeout(holdTimer);holdTimer=null;}
+    if(STORIES_PAUSED){
+      STORIES_PAUSED=false;
+      STORIES_START_TIME=Date.now();
+      startStoryTimer();
+    }
+  };
+  stEl.addEventListener('mousedown',startHold);
+  stEl.addEventListener('touchstart',startHold,{passive:true});
+  stEl.addEventListener('mouseup',endHold);
+  stEl.addEventListener('touchend',endHold);
+  stEl.addEventListener('mouseleave',endHold);
+});
+
+// Keyboard navigation
+document.addEventListener('keydown',(e)=>{
+  if(!document.getElementById('stories').classList.contains('open'))return;
+  if(e.key==='Escape')closeStories();
+  else if(e.key==='ArrowRight'||e.key===' ')storyNext();
+  else if(e.key==='ArrowLeft')storyPrev();
+});
+
 init();
 setupCloseWarning();
+setTimeout(checkStoriesUnread,1000);

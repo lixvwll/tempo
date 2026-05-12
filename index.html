@@ -68,6 +68,7 @@
         <div class="tb-pts" id="tb-pts">0 баллов</div>
       </div>
       <div class="tb-actions">
+        <button class="tb-icon tb-stories-btn" onclick="openStoriesFromBar()" title="Советы и новости" id="tb-stories-btn">✦<span class="tb-stories-dot" id="tb-stories-dot" style="display:none;"></span></button>
         <button class="tb-icon" onclick="openAbout()" title="О приложении">i</button>
         <button class="tb-icon" onclick="openAchievements()" title="Достижения">★</button>
         <button class="tb-icon" id="theme-toggle" onclick="toggleTheme()" title="Тема">◐</button>
@@ -112,6 +113,28 @@
 </div>
 <div class="toast" id="toast"></div>
 <div class="toast-ach" id="toast-ach"><div class="ta-icon" id="ta-icon">★</div><div class="ta-info"><div class="ta-lbl">Достижение</div><div class="ta-name" id="ta-name"></div></div></div>
+
+<div class="stories" id="stories">
+  <div class="st-progress-row" id="st-progress-row"></div>
+  <div class="st-header">
+    <div class="st-meta">
+      <div class="st-meta-icon" id="st-meta-icon">✨</div>
+      <div class="st-meta-text">
+        <div class="st-meta-name">Tempo</div>
+        <div class="st-meta-time" id="st-meta-time">сейчас</div>
+      </div>
+    </div>
+    <button class="st-close" onclick="closeStories()" aria-label="Закрыть">×</button>
+  </div>
+  <div class="st-body" id="st-body">
+    <div class="st-tap-prev" onclick="storyPrev()"></div>
+    <div class="st-tap-next" onclick="storyNext()"></div>
+    <div class="st-emoji" id="st-emoji"></div>
+    <div class="st-title" id="st-title"></div>
+    <div class="st-text" id="st-text"></div>
+  </div>
+</div>
+
 <input type="file" id="import-file" accept=".json"/>
 
 <script src="logic.js"></script>
