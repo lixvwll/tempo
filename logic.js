@@ -27,7 +27,21 @@ const POINTS={
   taskSkipped:-2,
   habitDone:5,
   habitMissed:-2,
+  waterCup:2,
+  waterGoal:10,
+  weightLog:3,
 };
+
+// Пресеты для трекера воды (как в фитнес-приложениях)
+const WATER_PRESETS=[
+  {icon:'🥛',name:'Стакан',ml:200},
+  {icon:'☕',name:'Кружка',ml:350},
+  {icon:'🥤',name:'Стакан L',ml:300},
+  {icon:'🧃',name:'Бутылка',ml:500},
+  {icon:'🍶',name:'Термос',ml:400},
+  {icon:'💧',name:'Большая',ml:750},
+];
+const DEFAULT_WATER_GOAL=2000;
 
 let DATA=null;
 let CURRENT_SCREEN='home';
@@ -35,6 +49,8 @@ let CURRENT_DAY=null;
 let HOME_TIMER=null;
 let JOURNAL_DAY=null;
 let SCHED_DAY=null;
+let WEIGHT_CHART_RANGE='4w'; // '1w','4w','3m','all'
+let HABITS_DAY=null;
 let EDITING_TASK=null;
 let EDITING_LECTURE=null;
 let SELECTED_TYPE='personal';
@@ -73,6 +89,8 @@ function emptyData(name){
     journalStruct:{},
     weeklySummaryShown:{},
     notifPerm:null,
+    weight:{start:null,goal:null,height:null,log:{}},
+    water:{goalMl:DEFAULT_WATER_GOAL,log:{},bonusDays:{}},
   };
 }
 
@@ -108,9 +126,45 @@ const ACHIEVEMENTS=[
   
   {id:'a_challenge_first',icon:'🎬',title:'Первый челлендж',desc:'Завершил свой первый челлендж',group:'challenge',check:d=>(d.challenges||[]).filter(c=>c.completed).length>=1},
   {id:'a_challenge_3',icon:'🏅',title:'Тройной успех',desc:'Завершил 3 челленджа',group:'challenge',check:d=>(d.challenges||[]).filter(c=>c.completed).length>=3,prog:d=>Math.min(1,(d.challenges||[]).filter(c=>c.completed).length/3)},
+
+  // === ВОДА ===
+  {id:'a_water_first',icon:'💧',title:'Первый глоток',desc:'Выпить первый стакан воды',group:'water',check:d=>countWaterEntries(d)>=1},
+  {id:'a_water_goal',icon:'🌊',title:'Водяной мастер',desc:'Выполнить дневную норму воды',group:'water',check:d=>waterGoalDaysTotal(d)>=1},
+  {id:'a_water_week',icon:'💦',title:'Неделя воды',desc:'Выполнять норму воды 7 дней подряд',group:'water',check:d=>maxWaterStreak(d)>=7,prog:d=>Math.min(1,maxWaterStreak(d)/7)},
+  {id:'a_water_month',icon:'🏊',title:'Месяц воды',desc:'Выполнять норму воды 30 дней подряд',group:'water',check:d=>maxWaterStreak(d)>=30,prog:d=>Math.min(1,maxWaterStreak(d)/30)},
+  {id:'a_water_100',icon:'👑',title:'Легенда воды',desc:'100 дней с выполненной нормой',group:'water',check:d=>waterGoalDaysTotal(d)>=100,prog:d=>Math.min(1,waterGoalDaysTotal(d)/100)},
+
+  // === ВЕС ===
+  {id:'a_weight_first',icon:'📏',title:'Первый шаг',desc:'Записать вес первый раз',group:'weight',check:d=>Object.keys((d.weight||{}).log||{}).length>=1},
+  {id:'a_weight_track7',icon:'📊',title:'Под контролем',desc:'Записывать вес 7 разных дней',group:'weight',check:d=>Object.keys((d.weight||{}).log||{}).length>=7,prog:d=>Math.min(1,Object.keys((d.weight||{}).log||{}).length/7)},
+  {id:'a_weight_5',icon:'📉',title:'Минус 5 кг',desc:'Потерять 5 кг от стартового веса',group:'weight',check:d=>weightLost(d)>=5,prog:d=>Math.min(1,weightLost(d)/5)},
+  {id:'a_weight_10',icon:'🎯',title:'Минус 10 кг',desc:'Потерять 10 кг от стартового веса',group:'weight',check:d=>weightLost(d)>=10,prog:d=>Math.min(1,weightLost(d)/10)},
+  {id:'a_weight_goal',icon:'🏆',title:'Цель достигнута!',desc:'Достичь целевого веса',group:'weight',check:d=>weightGoalReached(d),prog:d=>weightGoalProgress(d)},
 ];
 
-const ACH_GROUPS={starter:'Начало',streak:'Серии',study:'Учёба',habit:'Привычки',journal:'Дневник',points:'Баллы',challenge:'Челленджи'};
+const ACH_GROUPS={starter:'Начало',streak:'Серии',study:'Учёба',habit:'Привычки',journal:'Дневник',points:'Баллы',challenge:'Челленджи',water:'💧 Вода',weight:'⚖ Вес'};
+
+// === ВОДА: вспомогательные ===
+function waterTotalForDay(d,key){const e=(d.water&&d.water.log&&d.water.log[key])||[];return e.reduce((a,x)=>a+(x.ml||0),0);}
+function countWaterEntries(d){let n=0;Object.values((d.water||{}).log||{}).forEach(arr=>{n+=(arr||[]).length;});return n;}
+function waterGoalDaysTotal(d){const goal=(d.water||{}).goalMl||DEFAULT_WATER_GOAL;let n=0;Object.keys((d.water||{}).log||{}).forEach(k=>{if(waterTotalForDay(d,k)>=goal)n++;});return n;}
+function maxWaterStreak(d){
+  const goal=(d.water||{}).goalMl||DEFAULT_WATER_GOAL;
+  const keys=Object.keys((d.water||{}).log||{}).filter(k=>waterTotalForDay(d,k)>=goal).sort();
+  let best=0,cur=0,prev=null;
+  keys.forEach(k=>{
+    if(prev&&shiftDay(prev,1)===k)cur++;else cur=1;
+    if(cur>best)best=cur;prev=k;
+  });
+  return best;
+}
+
+// === ВЕС: вспомогательные ===
+function weightEntriesSorted(d){const log=(d.weight||{}).log||{};return Object.keys(log).sort().map(k=>({key:k,kg:typeof log[k]==='object'?log[k].kg:log[k]}));}
+function latestWeight(d){const e=weightEntriesSorted(d);return e.length?e[e.length-1].kg:null;}
+function weightLost(d){const w=d.weight||{};const start=w.start;const latest=latestWeight(d);if(start==null||latest==null)return 0;return Math.max(0,start-latest);}
+function weightGoalReached(d){const w=d.weight||{};const latest=latestWeight(d);if(w.goal==null||latest==null||w.start==null)return false;return latest<=w.goal&&w.start>w.goal;}
+function weightGoalProgress(d){const w=d.weight||{};const latest=latestWeight(d);if(w.goal==null||latest==null||w.start==null||w.start<=w.goal)return 0;return Math.min(1,(w.start-latest)/(w.start-w.goal));}
 
 function countTasksDone(d){let n=0;Object.values(d.tasks||{}).forEach(day=>{Object.entries(day).forEach(([k,t])=>{if(!k.startsWith('lec_')&&t.done)n++;});});return n;}
 function countLecturesAttended(d){let n=0;Object.values(d.tasks||{}).forEach(day=>{Object.entries(day).forEach(([k,t])=>{if(k.startsWith('lec_')&&t.done)n++;});});return n;}
@@ -205,6 +259,12 @@ function migrateData(d){
   if(d.notifPerm===undefined)d.notifPerm=null;
   if(d.onboardingDone===undefined)d.onboardingDone=true;
   if(d.lastExport===undefined)d.lastExport=null;
+  if(!d.weight)d.weight={start:null,goal:null,height:null,log:{}};
+  if(!d.weight.log)d.weight.log={};
+  if(!d.water)d.water={goalMl:DEFAULT_WATER_GOAL,log:{},bonusDays:{}};
+  if(!d.water.log)d.water.log={};
+  if(!d.water.bonusDays)d.water.bonusDays={};
+  if(!d.water.goalMl)d.water.goalMl=DEFAULT_WATER_GOAL;
   return d;
 }
 
@@ -333,6 +393,7 @@ function navTo(screen){
   else if(screen==='challenges')renderChallenges();
   else if(screen==='journal')renderJournal();
   else if(screen==='habits')renderHabits();
+  else if(screen==='weight')renderWeight();
   else if(screen==='settings')renderSettings();
   updateTopBar();
 }

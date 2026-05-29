@@ -831,3 +831,174 @@ textarea.field-inp{resize:vertical;min-height:60px;line-height:1.5;}
   background:var(--bad);
   border:1.5px solid var(--bg);
 }
+
+/* ============================================================
+   WEIGHT LOSS SYSTEM
+   ============================================================ */
+
+/* Nav: small phones */
+@media(max-width:390px){
+  .bn-btn{font-size:8px;padding:4px 2px 2px;}
+  .bn-icon{font-size:16px;}
+}
+
+/* Setup card */
+.wl-setup-card{background:var(--surface);border:0.5px solid var(--border2);border-radius:var(--r2);padding:24px 18px;text-align:center;margin-bottom:14px;}
+.wl-setup-icon{font-size:40px;margin-bottom:12px;line-height:1;}
+.wl-setup-title{font-size:20px;font-weight:500;letter-spacing:-0.02em;margin-bottom:8px;}
+.wl-setup-sub{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:18px;}
+
+/* Buttons */
+.wl-primary-btn{width:100%;background:var(--accent);border:none;color:var(--bg);font-size:14px;font-weight:500;padding:14px;border-radius:var(--r);cursor:pointer;font-family:inherit;transition:opacity 0.15s;min-height:48px;}
+.wl-primary-btn:hover{opacity:0.9;}
+.wl-secondary-btn{background:var(--surface);border:0.5px solid var(--border2);color:var(--text2);font-size:13px;padding:14px 16px;border-radius:var(--r);cursor:pointer;font-family:inherit;transition:all 0.15s;min-height:48px;white-space:nowrap;}
+.wl-secondary-btn:hover{color:var(--text);border-color:var(--border3);}
+
+/* Hero card */
+.wl-hero{background:var(--surface);border:0.5px solid var(--border2);border-radius:var(--r2);padding:16px;margin-bottom:10px;}
+.wl-hero-row{display:flex;align-items:flex-start;gap:14px;}
+.wl-hero-left{flex:1;}
+.wl-hero-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;}
+.wl-hero-val{font-size:42px;font-weight:500;letter-spacing:-0.03em;line-height:1;}
+.wl-hero-unit{font-size:14px;color:var(--text2);font-weight:400;margin-left:2px;}
+.wl-hero-sub{font-size:12px;color:var(--text2);margin-top:6px;line-height:1.4;}
+
+/* BMI badge */
+.wl-bmi-badge{background:var(--surface2);border:0.5px solid var(--border);border-radius:10px;padding:8px 12px;text-align:center;flex-shrink:0;}
+.wl-bmi-badge.bmi-good{background:var(--good-soft);border-color:rgba(124,179,66,0.3);}
+.wl-bmi-badge.bmi-warn{background:var(--warn-soft);border-color:rgba(224,162,79,0.3);}
+.wl-bmi-badge.bmi-bad{background:var(--bad-soft);border-color:rgba(226,100,100,0.3);}
+.wl-bmi-val{font-size:20px;font-weight:500;line-height:1;}
+.wl-bmi-badge.bmi-good .wl-bmi-val{color:var(--good);}
+.wl-bmi-badge.bmi-warn .wl-bmi-val{color:var(--warn);}
+.wl-bmi-badge.bmi-bad .wl-bmi-val{color:var(--bad);}
+.wl-bmi-lbl{font-size:9px;text-transform:uppercase;letter-spacing:0.06em;margin-top:2px;color:var(--muted);}
+.wl-bmi-cat{font-size:9px;margin-top:2px;color:var(--text2);}
+
+/* Progress ring */
+.wl-ring-wrap{display:flex;align-items:center;gap:12px;margin-top:14px;padding-top:12px;border-top:0.5px solid var(--border);}
+.wl-ring-svg{width:62px;height:62px;flex-shrink:0;}
+.wl-ring-bg{fill:none;stroke:var(--surface3);stroke-width:6;}
+.wl-ring-fg{fill:none;stroke:var(--good);stroke-width:6;stroke-linecap:round;transform:rotate(-90deg);transform-origin:center;transition:stroke-dasharray 0.6s;}
+.wl-ring-info{flex:1;}
+.wl-ring-pct{font-size:24px;font-weight:500;letter-spacing:-0.02em;line-height:1;}
+.wl-ring-desc{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.4;}
+
+/* Metric grid */
+.wl-metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;}
+.wl-metric-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:12px;}
+.wl-mc-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:5px;}
+.wl-mc-val{font-size:22px;font-weight:500;line-height:1;letter-spacing:-0.02em;}
+.wl-mc-val.good{color:var(--good);}
+.wl-mc-val.warn{color:var(--warn);}
+.wl-mc-val.bad{color:var(--bad);}
+.wl-mc-sub{font-size:10px;color:var(--muted);margin-top:4px;}
+
+/* Chart */
+.wl-chart-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r2);padding:14px;margin-bottom:10px;}
+.wl-chart-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.wl-chart-title{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;}
+.wl-chart-trend{font-size:12px;font-weight:500;}
+/* Chart tabs */
+.wl-chart-tabs{display:flex;gap:4px;margin-bottom:10px;background:var(--surface2);border-radius:8px;padding:3px;}
+.wl-ct{flex:1;background:none;border:none;color:var(--muted);font-size:11px;font-weight:500;padding:6px 4px;border-radius:6px;cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.wl-ct:hover{color:var(--text2);}
+.wl-ct.sel{background:var(--surface);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,0.12);}
+.wl-chart-svg{width:100%;height:100px;display:block;}
+.wl-chart-line{fill:none;stroke:var(--good);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.wl-chart-area{fill:var(--good);opacity:0.07;}
+.wl-chart-dot{fill:var(--good);}
+.wl-chart-empty{font-size:12px;color:var(--muted);text-align:center;padding:16px 0;}
+
+/* Log entries */
+.wl-log-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:11px 13px;margin-bottom:5px;display:flex;align-items:center;gap:11px;min-height:44px;}
+.wl-log-date{font-size:11px;color:var(--muted);min-width:52px;font-variant-numeric:tabular-nums;}
+.wl-log-kg{font-size:15px;font-weight:500;flex:1;}
+.wl-log-diff{font-size:12px;font-weight:500;font-variant-numeric:tabular-nums;}
+.wl-log-diff.down{color:var(--good);}
+.wl-log-diff.up{color:var(--bad);}
+.wl-log-diff.same{color:var(--muted);}
+
+/* Goal prediction card */
+.wl-goal-card{background:var(--warn-soft);border:0.5px solid rgba(224,162,79,0.3);border-radius:var(--r);padding:12px 13px;margin-bottom:14px;display:flex;align-items:center;gap:11px;}
+.wl-goal-info{flex:1;}
+.wl-goal-title{font-size:13px;font-weight:500;color:var(--warn);}
+.wl-goal-sub{font-size:11px;color:var(--text2);margin-top:2px;line-height:1.4;}
+
+/* ---- Water ---- */
+.wl-water-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:12px 13px;margin-bottom:14px;}
+.wl-water-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.wl-water-info{flex:1;}
+.wl-water-val{font-size:16px;font-weight:500;}
+.wl-water-goal{font-size:11px;color:var(--muted);font-weight:400;}
+.wl-water-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.wl-water-pct{font-size:13px;font-weight:500;color:var(--info);}
+.wl-water-pct.met{color:var(--good);}
+.wl-wbar{height:4px;background:var(--surface3);border-radius:99px;overflow:hidden;margin-bottom:10px;}
+.wl-wbar-fill{height:100%;border-radius:99px;background:var(--info);transition:width 0.4s;}
+
+/* Cups */
+.wl-cups{display:flex;gap:5px;flex-wrap:wrap;}
+.wl-cup{width:34px;height:34px;border-radius:8px;border:0.5px solid var(--border2);background:none;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;position:relative;transition:all 0.15s;font-family:inherit;color:var(--text);}
+.wl-cup:hover{border-color:var(--border3);}
+.wl-cup.filled{background:var(--info-soft);border-color:rgba(91,157,232,0.4);}
+.wl-cup.filled:hover{background:var(--bad-soft);border-color:rgba(226,100,100,0.3);}
+.wl-cup.add-cup{border-style:dashed;color:var(--muted);font-size:18px;}
+.wl-cup.add-cup:hover{color:var(--text);border-color:var(--border3);}
+.wl-cup-pts{position:absolute;top:-6px;right:-6px;background:var(--good);color:#000;font-size:7px;font-weight:700;padding:1px 4px;border-radius:99px;pointer-events:none;}
+
+/* Water modal presets */
+.wl-presets-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:4px;}
+.wl-preset-btn{background:var(--surface2);border:0.5px solid var(--border2);color:var(--text);border-radius:var(--r);padding:10px 6px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all 0.15s;min-height:72px;}
+.wl-preset-btn:hover{border-color:var(--border3);}
+.wl-preset-btn.sel{border-color:rgba(91,157,232,0.6);background:var(--info-soft);}
+.wl-pb-icon{font-size:22px;line-height:1;}
+.wl-pb-name{font-size:11px;font-weight:500;}
+.wl-pb-ml{font-size:10px;color:var(--muted);}
+.wl-preset-btn.sel .wl-pb-ml{color:var(--info);}
+.wl-custom-inp{font-size:18px;font-weight:500;text-align:center;font-variant-numeric:tabular-nums;flex:1;}
+
+/* Points preview */
+.wl-pts-preview{background:var(--good-soft);border:0.5px solid rgba(124,179,66,0.3);border-radius:8px;padding:10px 12px;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.wl-pts-preview-val{font-size:16px;font-weight:500;color:var(--good);line-height:1;}
+.wl-pts-preview-desc{font-size:11px;color:var(--text2);margin-top:2px;}
+
+/* Compact nav adjustments */
+@media(max-width:480px){
+  .bn-btn{font-size:8.5px;padding:5px 2px 3px;}
+  .bn-icon{font-size:17px;}
+}
+
+/* ============================================================
+   HABITS — навигация по дням
+   ============================================================ */
+
+/* Плашка «редактируешь прошлый день» */
+.habit-past-banner{
+  display:flex;align-items:center;gap:8px;
+  background:var(--warn-soft);
+  border:0.5px solid rgba(224,162,79,0.25);
+  border-radius:var(--r);
+  padding:9px 12px;
+  margin-bottom:10px;
+  font-size:12px;color:var(--warn);
+  line-height:1.4;
+}
+
+/* Прогресс-бар дня в привычках */
+.habit-day-progress{
+  background:var(--surface);
+  border:0.5px solid var(--border);
+  border-radius:var(--r);
+  padding:11px 13px;
+  margin-bottom:10px;
+}
+.hdp-bar{height:5px;background:var(--surface3);border-radius:99px;overflow:hidden;}
+.hdp-fill{height:100%;border-radius:99px;background:var(--accent);opacity:0.7;transition:width 0.4s;}
+
+/* Action row (weight screen) */
+.wl-action-row{display:flex;gap:8px;margin-bottom:12px;align-items:stretch;}
+.wl-action-row .wl-primary-btn{flex:1;}
+
+/* Empty metric card (spacer) */
+.wl-metric-empty{background:none!important;border:none!important;padding:0!important;}
