@@ -91,6 +91,7 @@ function emptyData(name){
     notifPerm:null,
     weight:{start:null,goal:null,height:null,log:{}},
     water:{goalMl:DEFAULT_WATER_GOAL,log:{},bonusDays:{}},
+    calories:{goalKcal:1500,log:{},savedFoods:[]},
   };
 }
 
@@ -200,27 +201,6 @@ function cleanLectureWeeks(d){
 function checkAchievements(){
   const unlocked=[];
   ACHIEVEMENTS.forEach(a=>{
-    const condMet=a.check(DATA);
-    const has=!!DATA.achievements[a.id];
-    if(condMet&&!has){
-      DATA.achievements[a.id]={unlockedAt:Date.now()};
-      unlocked.push(a);
-    }else if(!condMet&&has){
-      // Отзываем если условие больше не выполняется
-      delete DATA.achievements[a.id];
-    }
-  });
-  if(unlocked.length){
-    saveData();
-    showAchievementToast(unlocked[0]);
-    if(unlocked.length>1)setTimeout(()=>showAchievementToast(unlocked[1]),3500);
-  }
-  return unlocked;
-}
-
-function checkAchievements(){
-  const unlocked=[];
-  ACHIEVEMENTS.forEach(a=>{
     const conditionMet=a.check(DATA);
     const alreadyHas=!!DATA.achievements[a.id];
     if(conditionMet&&!alreadyHas){
@@ -265,6 +245,9 @@ function migrateData(d){
   if(!d.water.log)d.water.log={};
   if(!d.water.bonusDays)d.water.bonusDays={};
   if(!d.water.goalMl)d.water.goalMl=DEFAULT_WATER_GOAL;
+  if(!d.calories)d.calories={goalKcal:0,log:{},savedFoods:[],age:null,gender:null,activity:null,setupDone:false};
+  if(!d.calories.log)d.calories.log={};
+  if(!d.calories.savedFoods)d.calories.savedFoods=[];
   return d;
 }
 
@@ -385,7 +368,16 @@ function navTo(screen){
   CURRENT_SCREEN=screen;
   document.querySelectorAll('.main-screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('ms-'+screen).classList.add('active');
-  document.querySelectorAll('.bn-btn').forEach(b=>b.classList.toggle('active',b.dataset.screen===screen));
+  // Подсвечиваем кнопку в bottom nav — для screens из "Ещё" подсвечиваем ≡
+  const moreScreens=['stats','challenges','journal'];
+  const isMoreScreen=moreScreens.includes(screen);
+  document.querySelectorAll('.bn-btn').forEach(b=>{
+    if(b.id==='bn-menu-btn'){
+      b.classList.toggle('active',isMoreScreen);
+    }else{
+      b.classList.toggle('active',b.dataset.screen===screen);
+    }
+  });
   if(HOME_TIMER){clearInterval(HOME_TIMER);HOME_TIMER=null;}
   if(screen==='home')renderHome();
   else if(screen==='schedule')renderSchedule();

@@ -464,7 +464,7 @@ textarea.field-inp{resize:vertical;min-height:60px;line-height:1.5;}
 }
 .bn-inner{
   max-width:680px;margin:0 auto;
-  display:grid;grid-template-columns:repeat(7,1fr);
+  display:grid;grid-template-columns:repeat(5,1fr);
   padding:6px 4px 2px;
 }
 .bn-btn{
@@ -838,8 +838,8 @@ textarea.field-inp{resize:vertical;min-height:60px;line-height:1.5;}
 
 /* Nav: small phones */
 @media(max-width:390px){
-  .bn-btn{font-size:8px;padding:4px 2px 2px;}
-  .bn-icon{font-size:16px;}
+  .bn-btn{font-size:9px;padding:4px 2px 2px;}
+  .bn-icon{font-size:17px;}
 }
 
 /* Setup card */
@@ -965,8 +965,8 @@ textarea.field-inp{resize:vertical;min-height:60px;line-height:1.5;}
 
 /* Compact nav adjustments */
 @media(max-width:480px){
-  .bn-btn{font-size:8.5px;padding:5px 2px 3px;}
-  .bn-icon{font-size:17px;}
+  .bn-btn{font-size:9.5px;padding:5px 2px 3px;}
+  .bn-icon{font-size:18px;}
 }
 
 /* ============================================================
@@ -1002,3 +1002,213 @@ textarea.field-inp{resize:vertical;min-height:60px;line-height:1.5;}
 
 /* Empty metric card (spacer) */
 .wl-metric-empty{background:none!important;border:none!important;padding:0!important;}
+
+/* ============================================================
+   BURGER MENU
+   ============================================================ */
+
+/* Backdrop */
+.burger-backdrop{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(0,0,0,0.45);
+  opacity:0;pointer-events:none;
+  transition:opacity 0.28s ease;
+}
+.burger-backdrop.open{opacity:1;pointer-events:all;}
+
+/* Sheet */
+.burger-menu{
+  position:fixed;bottom:0;left:0;right:0;z-index:201;
+  background:var(--surface);
+  border-radius:20px 20px 0 0;
+  border-top:0.5px solid var(--border2);
+  transform:translateY(100%);
+  transition:transform 0.32s cubic-bezier(0.4,0,0.2,1);
+  max-width:680px;
+  margin:0 auto;
+  padding-bottom:0;
+}
+.burger-menu.open{transform:translateY(0);}
+
+/* Drag handle */
+.bm-handle{
+  width:36px;height:4px;
+  background:var(--border2);border-radius:99px;
+  margin:12px auto 0;
+}
+
+/* Top dropdown menu */
+.top-menu-backdrop{
+  position:fixed;inset:0;z-index:200;
+  background:transparent;
+  pointer-events:none;
+}
+.top-menu-backdrop.open{pointer-events:all;}
+.top-menu{
+  position:fixed;top:calc(var(--safe-top) + 56px);right:12px;z-index:201;
+  background:var(--surface);
+  border-radius:12px;
+  border:0.5px solid var(--border2);
+  box-shadow:0 8px 32px rgba(0,0,0,0.28);
+  min-width:200px;
+  padding:6px 0;
+  transform-origin:top right;
+  transform:scale(0.85);
+  opacity:0;
+  pointer-events:none;
+  transition:transform 0.18s cubic-bezier(0.4,0,0.2,1),opacity 0.18s ease;
+}
+.top-menu.open{transform:scale(1);opacity:1;pointer-events:all;}
+.top-menu .bm-item{border-radius:8px;margin:0 4px;}
+.top-menu .bm-divider{margin:4px 12px;}
+
+/* Menu items */
+.bm-items{padding:6px 8px;}
+.bm-item{
+  width:100%;background:none;border:none;
+  display:flex;align-items:center;gap:12px;
+  padding:13px 10px;
+  border-radius:var(--r);
+  cursor:pointer;font-family:inherit;
+  color:var(--text);
+  font-size:15px;
+  text-align:left;
+  transition:background 0.12s;
+  position:relative;
+}
+.bm-item:hover{background:var(--accent-soft);}
+.bm-item.active-menu{color:var(--accent);}
+.bm-item-icon{
+  font-size:18px;width:28px;text-align:center;
+  color:var(--text2);flex-shrink:0;
+}
+.bm-item.active-menu .bm-item-icon{color:var(--accent);}
+.bm-item-label{flex:1;font-weight:400;}
+.bm-item-arrow{
+  font-size:18px;color:var(--muted);
+  line-height:1;
+}
+.bm-item-badge{
+  background:var(--bad);color:#fff;
+  font-size:9px;font-weight:700;
+  padding:2px 5px;border-radius:99px;
+  min-width:16px;text-align:center;
+}
+
+.bm-divider{
+  height:0.5px;background:var(--border);
+  margin:2px 18px;
+}
+
+.bm-bottom-safe{
+  height:calc(env(safe-area-inset-bottom,0px) + 8px);
+}
+
+/* Active menu-button state in bottom nav */
+.bn-btn.menu-open{color:var(--text);}
+
+
+/* ============================================================ */
+/* === CALORIES MODULE ======================================== */
+/* ============================================================ */
+
+/* Progress card */
+.cal-progress-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r2);padding:16px 18px;margin-bottom:14px;}
+.cal-prog-row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;}
+.cal-prog-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px;}
+.cal-prog-nums{display:flex;align-items:baseline;gap:4px;}
+.cal-prog-eaten{font-size:34px;font-weight:700;letter-spacing:-0.03em;}
+.cal-prog-of{font-size:14px;color:var(--muted);}
+.cal-prog-right{text-align:right;}
+.cal-prog-rem-val{font-size:22px;font-weight:700;}
+.cal-prog-rem-lbl{font-size:11px;color:var(--muted);margin-top:2px;}
+.cal-bar-track{height:5px;background:var(--surface3);border-radius:3px;overflow:hidden;margin-bottom:6px;}
+.cal-bar-fill{height:100%;border-radius:3px;transition:width 0.4s ease;}
+.cal-prog-bottom{display:flex;align-items:center;justify-content:space-between;}
+.cal-bar-pct{font-size:11px;color:var(--muted);}
+
+/* Goal button (inline) */
+.cal-goal-btn{display:flex;align-items:center;gap:5px;background:var(--surface2);border:0.5px solid var(--border2);border-radius:99px;padding:4px 10px;cursor:pointer;font-family:inherit;color:var(--text2);font-size:11px;transition:all 0.15s;}
+.cal-goal-btn:hover{color:var(--text);border-color:var(--border3);}
+.cal-goal-icon{font-size:11px;}
+
+/* Add button */
+.cal-add-btn{width:100%;background:var(--accent-soft);border:0.5px dashed var(--border2);border-radius:var(--r2);padding:14px 18px;display:flex;align-items:center;gap:12px;cursor:pointer;font-family:inherit;color:var(--text2);font-size:15px;margin-bottom:14px;transition:all 0.15s;}
+.cal-add-btn:hover{color:var(--text);border-color:var(--border3);}
+.cal-add-plus{width:32px;height:32px;background:var(--info-soft);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--info);flex-shrink:0;}
+
+/* List */
+.cal-list{display:flex;flex-direction:column;gap:8px;}
+.cal-empty{text-align:center;color:var(--muted);font-size:14px;padding:24px 0;line-height:1.6;}
+
+/* Entry row */
+.cal-entry{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r2);padding:12px 14px;display:flex;align-items:center;gap:12px;position:relative;cursor:pointer;transition:all 0.15s;overflow:hidden;flex-wrap:wrap;}
+.cal-entry:active{opacity:0.85;}
+.cal-entry-icon{font-size:26px;flex-shrink:0;width:36px;text-align:center;}
+.cal-entry-info{flex:1;min-width:0;}
+.cal-entry-name{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cal-entry-meta{font-size:12px;color:var(--muted);margin-top:2px;}
+.cal-entry-right{text-align:right;flex-shrink:0;}
+.cal-entry-kcal{font-size:18px;font-weight:700;}
+.cal-entry-unit{font-size:10px;color:var(--muted);}
+/* Actions row — hidden by default, shown on tap */
+.cal-entry-actions{display:none;width:100%;padding-top:10px;border-top:0.5px solid var(--border);margin-top:8px;}
+.cal-entry.open .cal-entry-actions{display:flex;}
+.cal-entry.open{border-color:var(--border2);}
+.cal-entry-del-btn{width:100%;background:var(--bad-soft);border:0.5px solid var(--bad);color:var(--bad);font-size:14px;font-weight:500;padding:10px;border-radius:var(--r);cursor:pointer;font-family:inherit;transition:opacity 0.15s;}
+.cal-entry-del-btn:hover{opacity:0.85;}
+
+/* Result box (in add modal) */
+.cal-result-box{display:flex;align-items:center;justify-content:space-between;background:var(--info-soft);border:0.5px solid var(--info);border-radius:var(--r);padding:12px 16px;margin-bottom:16px;}
+.cal-result-label{font-size:14px;color:var(--text2);}
+.cal-result-kcal{font-size:22px;font-weight:700;color:var(--info);}
+
+/* Chips (saved foods + goal presets) */
+.cal-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+.cal-chip{display:inline-flex;align-items:center;gap:6px;background:var(--surface2);border:0.5px solid var(--border2);color:var(--text2);font-size:13px;padding:6px 14px;border-radius:99px;cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.cal-chip:hover{color:var(--text);border-color:var(--border3);}
+.cal-chip-del{font-size:14px;color:var(--muted);opacity:0.5;margin-left:2px;line-height:1;}
+.cal-chip-del:hover{color:var(--bad);opacity:1;}
+.cal-goal-presets{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+
+/* Setup — formula label */
+.cal-setup-formula{font-size:12px;color:var(--muted);margin-bottom:16px;letter-spacing:0.03em;}
+.cal-setup-tip{font-size:11px;color:var(--muted);margin-top:-8px;margin-bottom:12px;}
+
+/* Gender buttons */
+.cal-gender-row{display:flex;gap:8px;}
+.cal-gender-btn{flex:1;padding:12px;background:var(--surface2);border:0.5px solid var(--border2);border-radius:var(--r);font-family:inherit;font-size:14px;color:var(--text2);cursor:pointer;transition:all 0.15s;}
+.cal-gender-btn.sel{background:var(--accent-soft);border-color:var(--border3);color:var(--text);font-weight:600;}
+.cal-gender-btn:hover{border-color:var(--border3);color:var(--text);}
+
+/* Activity list */
+.cal-act-list{display:flex;flex-direction:column;gap:6px;}
+.cal-act-btn{text-align:left;padding:10px 14px;background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--r);font-family:inherit;cursor:pointer;transition:all 0.15s;}
+.cal-act-btn.sel{background:var(--accent-soft);border-color:var(--border3);}
+.cal-act-btn:hover{border-color:var(--border3);}
+.cal-act-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.cal-act-desc{font-size:12px;color:var(--muted);}
+.cal-act-btn.sel .cal-act-name{color:var(--text);}
+
+/* Preview card (BMR results) */
+.cal-preview-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r2);padding:16px;margin-bottom:16px;}
+.cal-preview-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;}
+.cal-preview-item{text-align:center;padding:8px 4px;background:var(--surface2);border-radius:var(--r);border:0.5px solid var(--border);}
+.cal-preview-item.accent{background:var(--info-soft);border-color:var(--info);}
+.cal-preview-val{font-size:20px;font-weight:700;letter-spacing:-0.02em;margin-bottom:2px;}
+.cal-preview-item.accent .cal-preview-val{color:var(--info);}
+.cal-preview-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;}
+.cal-preview-hint{font-size:12px;color:var(--text2);line-height:1.5;}
+
+/* Home widget */
+.cal-widget{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r2);padding:14px 16px;cursor:pointer;margin-top:14px;transition:opacity 0.15s;}
+.cal-widget:hover{opacity:0.85;}
+.cal-w-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.cal-w-title{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;}
+.cal-w-pct{font-size:13px;font-weight:600;}
+.cal-w-nums{display:flex;align-items:baseline;gap:3px;margin-bottom:8px;}
+.cal-w-eaten{font-size:22px;font-weight:700;letter-spacing:-0.02em;}
+.cal-w-of{font-size:13px;color:var(--muted);}
+.cal-w-bar{height:4px;background:var(--surface3);border-radius:2px;overflow:hidden;margin-bottom:6px;}
+.cal-w-fill{height:100%;border-radius:2px;transition:width 0.4s ease;}
+.cal-w-sub{font-size:12px;color:var(--muted);}

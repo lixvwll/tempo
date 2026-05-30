@@ -68,10 +68,9 @@
         <div class="tb-pts" id="tb-pts">0 баллов</div>
       </div>
       <div class="tb-actions">
-        <button class="tb-icon tb-stories-btn" onclick="openStoriesFromBar()" title="Советы и новости" id="tb-stories-btn">✦<span class="tb-stories-dot" id="tb-stories-dot" style="display:none;"></span></button>
-        <button class="tb-icon" onclick="navTo('settings')" title="Настройки">⚙</button>
-        <button class="tb-icon" onclick="openAchievements()" title="Достижения">★</button>
+        <button class="tb-icon tb-stories-btn" id="tb-stories-btn" onclick="openStoriesFromBar()" title="Новости">✦<div class="tb-stories-dot" id="tb-stories-dot" style="display:none;"></div></button>
         <button class="tb-icon" id="theme-toggle" onclick="toggleTheme()" title="Тема">◐</button>
+        <button class="tb-icon" id="top-menu-btn" onclick="openTopMenu()" title="Меню" style="font-size:20px;font-weight:400;">≡</button>
       </div>
     </div>
 
@@ -90,12 +89,55 @@
     <div class="bn-inner">
       <button class="bn-btn active" data-screen="home" onclick="navTo('home')"><span class="bn-icon">●</span><span>Сейчас</span></button>
       <button class="bn-btn" data-screen="schedule" onclick="navTo('schedule')"><span class="bn-icon">▤</span><span>День</span></button>
-      <button class="bn-btn" data-screen="stats" onclick="navTo('stats')"><span class="bn-icon">▲</span><span>Статы</span></button>
-      <button class="bn-btn" data-screen="challenges" onclick="navTo('challenges')"><span class="bn-icon">◆</span><span>Челлендж</span></button>
-      <button class="bn-btn" data-screen="journal" onclick="navTo('journal')"><span class="bn-icon">✎</span><span>Дневник</span></button>
       <button class="bn-btn" data-screen="habits" onclick="navTo('habits')"><span class="bn-icon">◇</span><span>Привычки</span></button>
       <button class="bn-btn" data-screen="weight" onclick="navTo('weight')"><span class="bn-icon">⚖</span><span>Вес</span></button>
+      <button class="bn-btn" id="bn-menu-btn" onclick="openMoreMenu()"><span class="bn-icon">≡</span><span>Ещё</span></button>
     </div>
+  </div>
+
+  <!-- More menu (bottom sheet: Статистика, Челленджи, Дневник) -->
+  <div class="burger-backdrop" id="burger-backdrop" onclick="closeMoreMenu()"></div>
+  <div class="burger-menu" id="burger-menu">
+    <div class="bm-handle"></div>
+    <div class="bm-items">
+      <button class="bm-item" data-screen="stats" onclick="navFromMenu('stats')">
+        <span class="bm-item-icon">▲</span>
+        <span class="bm-item-label">Статистика</span>
+        <span class="bm-item-arrow">›</span>
+      </button>
+      <button class="bm-item" data-screen="challenges" onclick="navFromMenu('challenges')">
+        <span class="bm-item-icon">◆</span>
+        <span class="bm-item-label">Челленджи</span>
+        <span class="bm-item-arrow">›</span>
+      </button>
+      <button class="bm-item" data-screen="journal" onclick="navFromMenu('journal')">
+        <span class="bm-item-icon">✎</span>
+        <span class="bm-item-label">Дневник</span>
+        <span class="bm-item-arrow">›</span>
+      </button>
+    </div>
+    <div class="bm-bottom-safe"></div>
+  </div>
+
+  <!-- Top menu (dropdown: Настройки, Достижения, О приложении) -->
+  <div class="top-menu-backdrop" id="top-menu-backdrop" onclick="closeTopMenu()"></div>
+  <div class="top-menu" id="top-menu">
+    <button class="bm-item" data-screen="settings" onclick="navFromTopMenu('settings')">
+      <span class="bm-item-icon">⚙</span>
+      <span class="bm-item-label">Настройки</span>
+      <span class="bm-item-arrow">›</span>
+    </button>
+    <button class="bm-item" onclick="openAchievements();closeTopMenu()">
+      <span class="bm-item-icon">★</span>
+      <span class="bm-item-label">Достижения</span>
+      <span class="bm-item-arrow">›</span>
+    </button>
+    <div class="bm-divider"></div>
+    <button class="bm-item" onclick="openAbout();closeTopMenu()">
+      <span class="bm-item-icon">ℹ</span>
+      <span class="bm-item-label">О приложении</span>
+      <span class="bm-item-arrow">›</span>
+    </button>
   </div>
 
 </div>
@@ -140,6 +182,18 @@
 <input type="file" id="import-file" accept=".json"/>
 
 <script src="logic.js"></script>
+<script src="modules/ui.js"></script>
+<script src="modules/home.js"></script>
+<script src="modules/schedule.js"></script>
+<script src="modules/journal.js"></script>
+<script src="modules/habits.js"></script>
+<script src="modules/stats.js"></script>
+<script src="modules/challenges.js"></script>
+<script src="modules/settings.js"></script>
+<script src="modules/onboarding.js"></script>
+<script src="modules/stories.js"></script>
+<script src="modules/weight.js"></script>
+<script src="modules/calories.js"></script>
 <script src="app.js"></script>
 <script>
 if('serviceWorker' in navigator){

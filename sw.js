@@ -1,10 +1,21 @@
-const CACHE_NAME = 'tempo-v2.3';
+const CACHE_NAME = 'tempo-v2.5';
 const ASSETS = [
   '/tempo/',
   '/tempo/index.html',
   '/tempo/style.css',
-  '/tempo/app.js',
   '/tempo/logic.js',
+  '/tempo/modules/ui.js',
+  '/tempo/modules/home.js',
+  '/tempo/modules/schedule.js',
+  '/tempo/modules/journal.js',
+  '/tempo/modules/habits.js',
+  '/tempo/modules/stats.js',
+  '/tempo/modules/challenges.js',
+  '/tempo/modules/settings.js',
+  '/tempo/modules/onboarding.js',
+  '/tempo/modules/stories.js',
+  '/tempo/modules/weight.js',
+  '/tempo/app.js',
   '/tempo/manifest.json'
 ];
 
