@@ -158,7 +158,12 @@
 <div class="toast-ach" id="toast-ach"><div class="ta-icon" id="ta-icon">★</div><div class="ta-info"><div class="ta-lbl">Достижение</div><div class="ta-name" id="ta-name"></div></div></div>
 
 <div class="stories" id="stories">
-  <canvas id="st-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;"></canvas>
+  <div class="st-liquid-bg"></div>
+  <div class="st-caustics"></div>
+  <div class="st-orb st-orb-1"></div>
+  <div class="st-orb st-orb-2"></div>
+  <div class="st-orb st-orb-3"></div>
+  <canvas id="st-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;"></canvas>
   <div class="st-progress-row" id="st-progress-row"></div>
   <div class="st-header">
     <div class="st-meta">
@@ -173,10 +178,32 @@
   <div class="st-body" id="st-body">
     <div class="st-tap-prev" onclick="storyPrev()"></div>
     <div class="st-tap-next" onclick="storyNext()"></div>
-    <div class="st-emoji" id="st-emoji"></div>
-    <div class="st-title" id="st-title"></div>
-    <div class="st-text" id="st-text"></div>
+    <div class="st-glass-card">
+      <div class="st-card-type"><span class="st-card-dot"></span><span id="st-card-type-label">совет</span></div>
+      <div class="st-emoji" id="st-emoji"></div>
+      <div class="st-title" id="st-title"></div>
+      <div class="st-text" id="st-text"></div>
+    </div>
   </div>
+</div>
+
+<!-- Tips Library -->
+<div class="tips-lib" id="tips-lib">
+  <div class="tips-lib-header">
+    <button class="tips-lib-back" onclick="closeTipsLib()" aria-label="Назад">‹</button>
+    <div class="tips-lib-title" id="tips-lib-title">Библиотека советов</div>
+    <div style="width:36px;"></div>
+  </div>
+  <div class="tips-lib-content" id="tips-lib-content"></div>
+</div>
+
+<!-- Tip Detail -->
+<div class="tip-detail-overlay" id="tip-detail-overlay" onclick="closeTipDetail()"></div>
+<div class="tip-detail" id="tip-detail">
+  <div class="tip-detail-handle"></div>
+  <div class="tip-detail-emoji" id="tip-detail-emoji"></div>
+  <div class="tip-detail-title" id="tip-detail-title"></div>
+  <div class="tip-detail-body" id="tip-detail-body"></div>
 </div>
 
 <input type="file" id="import-file" accept=".json"/>

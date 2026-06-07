@@ -30,6 +30,7 @@ const POINTS={
   waterCup:2,
   waterGoal:10,
   weightLog:3,
+  vacationOn:50,
 };
 
 // Пресеты для трекера воды (как в фитнес-приложениях)
@@ -92,6 +93,7 @@ function emptyData(name){
     weight:{start:null,goal:null,height:null,log:{}},
     water:{goalMl:DEFAULT_WATER_GOAL,log:{},bonusDays:{}},
     calories:{goalKcal:1500,log:{},savedFoods:[]},
+    vacationMode:false,
   };
 }
 
@@ -141,6 +143,9 @@ const ACHIEVEMENTS=[
   {id:'a_weight_5',icon:'📉',title:'Минус 5 кг',desc:'Потерять 5 кг от стартового веса',group:'weight',check:d=>weightLost(d)>=5,prog:d=>Math.min(1,weightLost(d)/5)},
   {id:'a_weight_10',icon:'🎯',title:'Минус 10 кг',desc:'Потерять 10 кг от стартового веса',group:'weight',check:d=>weightLost(d)>=10,prog:d=>Math.min(1,weightLost(d)/10)},
   {id:'a_weight_goal',icon:'🏆',title:'Цель достигнута!',desc:'Достичь целевого веса',group:'weight',check:d=>weightGoalReached(d),prog:d=>weightGoalProgress(d)},
+
+  // === КАНИКУЛЫ ===
+  {id:'a_vacation',icon:'🌴',title:'Каникулы!',desc:'Включил режим каникул',group:'starter',check:d=>!!d.vacationMode},
 ];
 
 const ACH_GROUPS={starter:'Начало',streak:'Серии',study:'Учёба',habit:'Привычки',journal:'Дневник',points:'Баллы',challenge:'Челленджи',water:'💧 Вода',weight:'⚖ Вес'};
@@ -263,6 +268,63 @@ function setTheme(t){
 function toggleTheme(){const cur=document.documentElement.getAttribute('data-theme');setTheme(cur==='dark'?'light':'dark');}
 
 function showToast(msg,kind){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+(kind||'');setTimeout(()=>t.className='toast '+(kind||''),2000);}
+
+function getVacationSeason(){
+  const now=new Date();
+  const m=now.getMonth()+1,d=now.getDate();
+  if(m>=6&&m<=8)return'summer'+now.getFullYear();
+  if(m===12&&d>=20)return'winter'+now.getFullYear();
+  if(m===1&&d<=15)return'winter'+(now.getFullYear()-1);
+  return null;
+}
+
+function toggleVacation(){
+  if(DATA.vacationMode){
+    DATA.vacationMode=false;
+    saveData();
+    showToast('Каникулы окончены — пары вернулись','good');
+    renderCurrentScreen();
+    return;
+  }
+  const season=getVacationSeason();
+  if(!season){
+    showToast('Каникулы можно включить только в сезон','bad');
+    return;
+  }
+  DATA.vacationMode=true;
+  if(!DATA.vacationClaimed)DATA.vacationClaimed={};
+  if(!DATA.vacationClaimed[season]){
+    DATA.vacationClaimed[season]=true;
+    addPoints(POINTS.vacationOn,'vacation');
+    showVacationCelebration();
+  }else{
+    showToast('Каникулы включены','good');
+  }
+  saveData();
+  renderCurrentScreen();
+}
+
+function showVacationCelebration(){
+  const ol=document.getElementById('overlay');
+  const panel=document.getElementById('panel');
+  panel.innerHTML=`
+    <div class="vacation-celebration">
+      <div class="vc-emoji">🎉🌴☀️</div>
+      <div class="vc-title">Каникулы!</div>
+      <div class="vc-text">Поздравляем! Семестр позади — ты заслужил отдых. Пары скрыты, но расписание сохранено. Всё вернётся когда будешь готов.</div>
+      <div class="vc-points">+${POINTS.vacationOn} баллов</div>
+      <button class="pf-save" onclick="closeOverlay()" style="margin-top:16px;width:100%;">Отдыхать!</button>
+    </div>
+  `;
+  ol.classList.add('open');
+}
+
+function renderCurrentScreen(){
+  if(CURRENT_SCREEN==='home')renderHome();
+  else if(CURRENT_SCREEN==='schedule')renderSchedule();
+  else if(CURRENT_SCREEN==='settings')renderSettings();
+  updateTopBar();
+}
 
 function addPoints(n,reason,dayKey){
   if(!DATA)return;
@@ -412,7 +474,7 @@ function getDayEvents(dayKey){
   const dow=dayOfWeek(d);
   const events=[];
   
-  const dayLectures=(DATA.lectures[dow]||[]);
+  const dayLectures=DATA.vacationMode?[]:(DATA.lectures[dow]||[]);
   dayLectures.forEach(lec=>{
     const status=(DATA.tasks[dayKey]||{})['lec_'+lec.id]||{};
     events.push({
