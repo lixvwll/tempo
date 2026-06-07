@@ -32,6 +32,22 @@ function renderSettings(){
       </div>
     </div>
 
+    <div class="section-lbl" style="margin-top:4px;">Режим</div>
+    <div class="set-card">
+      <div class="set-row">
+        <div>
+          <div class="set-label">${DATA.vacationMode?'🌴 ':''} Каникулы</div>
+          <div class="set-desc">${DATA.vacationMode?'Пары скрыты. Расписание сохранено.':getVacationSeason()?'Скроет все пары из расписания':'Доступно в июне–августе и в конце декабря–январе'}</div>
+        </div>
+        ${DATA.vacationMode
+          ?'<button class="icon-btn active-vacation" onclick="toggleVacation()">Выключить</button>'
+          :getVacationSeason()
+            ?'<button class="icon-btn" onclick="toggleVacation()">Включить</button>'
+            :'<span style="font-size:11px;color:var(--muted);">Не сезон</span>'
+        }
+      </div>
+    </div>
+
     <div class="section-lbl">Расписание пар <button class="section-lbl-act" onclick="openLectureEditor()">+ Добавить</button></div>
   `;
 

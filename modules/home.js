@@ -49,7 +49,14 @@ function renderHome(){
     </div>
   `;
 
-  if(currentEvent){
+  if(DATA.vacationMode){
+    html+=`
+      <div class="vacation-banner">
+        <div class="vb-icon">🌴</div>
+        <div class="vb-text">Каникулы — отдыхай! Пары скрыты, но сохранены.</div>
+      </div>
+    `;
+  }else if(currentEvent){
     html+=`
       <div class="now-card urgent">
         <div class="nc-label">Сейчас</div>

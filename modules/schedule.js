@@ -14,7 +14,9 @@ function renderSchedule(){
 
   html+=`<div class="section-lbl">Расписание дня</div>`;
 
-  if(events.length===0){
+  if(DATA.vacationMode&&events.length===0){
+    html+=`<div class="empty-day">🌴 Каникулы — пар нет. Личные дела можно добавлять.</div>`;
+  }else if(events.length===0){
     html+=`<div class="empty-day">Пусто. Добавь дело или загляни в настройки если ещё не добавил пары.</div>`;
   }else{
     events.forEach(e=>{
