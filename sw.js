@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tempo-v2.5';
+const CACHE_NAME = 'tempo-v2.6';
 const ASSETS = [
   '/tempo/',
   '/tempo/index.html',
@@ -15,6 +15,7 @@ const ASSETS = [
   '/tempo/modules/onboarding.js',
   '/tempo/modules/stories.js',
   '/tempo/modules/weight.js',
+  '/tempo/modules/calories.js',
   '/tempo/app.js',
   '/tempo/manifest.json'
 ];
@@ -44,7 +45,7 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
 
-  if (url.pathname.endsWith('news.json')) {
+  if (url.pathname.endsWith('news.json') || url.pathname.endsWith('tips.json')) {
     e.respondWith(
       fetch(e.request).catch(() => caches.match(e.request))
     );

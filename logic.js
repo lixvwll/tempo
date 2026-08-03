@@ -93,6 +93,7 @@ function emptyData(name){
     weight:{start:null,goal:null,height:null,log:{}},
     water:{goalMl:DEFAULT_WATER_GOAL,log:{},bonusDays:{}},
     calories:{goalKcal:1500,log:{},savedFoods:[]},
+    reminders:{},
     vacationMode:false,
   };
 }
@@ -423,6 +424,7 @@ function goHome(){
     checkAchievements();
     maybeShowWeeklySummary();
     setupNotifications();
+    if(typeof checkStoriesUnread==='function')checkStoriesUnread();
   },800);
 }
 
