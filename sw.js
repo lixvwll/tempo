@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tempo-v2.8';
+const CACHE_NAME = 'tempo-v2.9';
 const ASSETS = [
   '/tempo/',
   '/tempo/index.html',
@@ -40,7 +40,7 @@ self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys =>
       Promise.all(
-        keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
+        keys.filter(k => k !== CACHE_NAME && !k.startsWith('tempo-ai')).map(k => caches.delete(k))
       )
     )
   );
@@ -50,7 +50,9 @@ self.addEventListener('activate', e => {
 // Изоляция страницы (COOP/COEP): нужна, чтобы нейросеть поддержки считала
 // в несколько потоков (SharedArrayBuffer). Все ресурсы Tempo — свои, так что
 // ничего не ломается. Включается со второй загрузки, когда SW уже активен.
-const COI = true;
+// На iPhone/iPad изоляция выключена: Safari там не тянет модель в несколько потоков,
+// а в режиме веб-приложения изоляция может давать белый экран
+const COI = !/iPhone|iPad|iPod/.test(self.navigator.userAgent);
 function withCOI(res) {
   if (!COI || !res || res.status === 0 || res.type === 'opaque') return res;
   const h = new Headers(res.headers);

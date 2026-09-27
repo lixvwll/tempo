@@ -14,6 +14,10 @@ let SUP_STATE='idle';          // idle | checking | need | downloading | loading
 let SUP_ERR='',SUP_BUSY=false,SUP_ABORT=null,SUP_OPENED=false;
 let SUP_PROG={done:0,total:0,speed:0};
 let SUP_BREATH=null;
+let SUP_WMOD=null;
+// iPhone/iPad: у Safari жёсткий лимит памяти вкладки (~1–1,5 ГБ) — экономим всё, что можно
+const SUP_IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const SUP_OPFS_NAME=()=> 'tempo-'+(SUP_MAN?SUP_MAN.id:'model')+'.gguf';
 
 function supEnsure(){
   if(!DATA.support)DATA.support={msgs:[],ctx:true,joke:0};
@@ -150,8 +154,45 @@ async function supCheck(){
     try{const c=await caches.open(SUP_CACHE);const r=await c.match(supUrl(SUP_AI_DIR+'model.json'));if(r)SUP_MAN=await r.json();}catch(e2){}
     if(!SUP_MAN){supSetState('error','Нет связи, а модель ещё не скачана. Подключись к интернету.');return;}
   }
+  if(await supModelFile())return supLoad();
   const missing=await supMissingParts();
   if(!missing.length)supLoad();else supSetState('need','');
+}
+
+// Движок wllama и его хранилище в OPFS (файл на «диске» браузера, а не в памяти)
+async function supEngine(){
+  if(!SUP_WMOD)SUP_WMOD=await import(supUrl('vendor/wllama/wllama.min.js'));
+  if(!SUP_W)SUP_W=new SUP_WMOD.Wllama({default:supUrl('vendor/wllama/wllama.wasm')},{suppressNativeLog:true,
+    logger:{debug(){},log(){},warn(){},error:(...a)=>console.warn('[wllama]',...a)}});
+  return SUP_W;
+}
+async function supModelFile(){
+  try{
+    const w=await supEngine();
+    const f=await w.cacheManager.open(SUP_OPFS_NAME());
+    return f&&f.size===SUP_MAN.size?f:null;
+  }catch(e){return null;}
+}
+
+// Склеиваем куски из Cache API в один файл OPFS по одному куску за раз
+// (в памяти максимум 45 МБ), затем удаляем куски — место не занимается дважды.
+async function supAssemble(){
+  const w=await supEngine(),c=await caches.open(SUP_CACHE);
+  let i=0;
+  const stream=new ReadableStream({
+    async pull(ctrl){
+      if(i>=SUP_MAN.parts.length){ctrl.close();return;}
+      const p=SUP_MAN.parts[i++];
+      const r=await c.match(supUrl(SUP_AI_DIR+p.f));
+      if(!r){ctrl.error(new Error('нет части '+p.f));return;}
+      ctrl.enqueue(new Uint8Array(await r.arrayBuffer()));
+    }
+  });
+  await w.cacheManager.write(SUP_OPFS_NAME(),stream,{etag:SUP_MAN.sha256,originalSize:SUP_MAN.size,originalURL:supUrl(SUP_AI_DIR+'model.json')});
+  const f=await supModelFile();
+  if(!f)throw new Error('не удалось сохранить модель');
+  for(const p of SUP_MAN.parts){try{await c.delete(supUrl(SUP_AI_DIR+p.f));}catch(e){}}
+  return f;
 }
 
 async function supMissingParts(){
@@ -211,7 +252,7 @@ async function supDownload(){
     }
   };
   try{
-    await Promise.all([worker(),worker(),worker()]);
+    await Promise.all(SUP_IOS?[worker()]:[worker(),worker(),worker()]);
     await c.put(supUrl(SUP_AI_DIR+'model.json'),new Response(JSON.stringify(SUP_MAN)));
     supLoad();
   }catch(e){
@@ -228,18 +269,16 @@ function supProgressTick(){
 async function supLoad(){
   supSetState('loading','');
   try{
-    const mod=await import(supUrl('vendor/wllama/wllama.min.js'));
-    const c=await caches.open(SUP_CACHE);
-    const blobs=[];
-    for(const p of SUP_MAN.parts){const r=await c.match(supUrl(SUP_AI_DIR+p.f));if(!r)throw new Error('нет части '+p.f);blobs.push(await r.blob());}
-    const file=new File(blobs,'tempo-chat.gguf',{type:'application/octet-stream'});
-    if(SUP_W){try{await SUP_W.exit();}catch(e){}}
-    SUP_W=new mod.Wllama({default:supUrl('vendor/wllama/wllama.wasm')},{suppressNativeLog:true,logger:{debug(){},log(){},warn(){},error:(...a)=>console.warn('[wllama]',...a)}});
-    await SUP_W.loadModel([file],{n_ctx:2048,n_batch:256,log_level:4});
+    let file=await supModelFile();
+    if(!file)file=await supAssemble();
+    const w=await supEngine();
+    if(w.isModelLoaded()){supSetState('ready','');return;}
+    await w.loadModel([file],SUP_IOS?{n_ctx:1024,n_batch:64,n_ubatch:64,n_threads:1,n_gpu_layers:0,log_level:4}:{n_ctx:2048,n_batch:256,log_level:4});
     supSetState('ready','');
     if(SUP_OPENED)setTimeout(()=>{const i=document.getElementById('sup-inp');if(i&&!('ontouchstart' in window))i.focus();},50);
   }catch(e){
     console.warn(e);
+    try{if(SUP_W)await SUP_W.exit();}catch(e2){}
     SUP_W=null;
     supSetState('error','Не удалось запустить модель: '+(e&&e.message||e)+'. Возможно, не хватает памяти — закрой другие вкладки и попробуй снова.');
   }
@@ -252,7 +291,79 @@ function supCtx(){
   const habitsDone=(DATA.habits||[]).filter(h=>(DATA.habitLogs[t]||{})[h.id]).length;
   return{name:DATA.name,sex:(DATA.calories||{}).gender||null,hour:new Date().getHours(),mood:(DATA.moods||{})[t]||null,
     sleep:ci&&!ci.skip?ci.sl:null,readiness:ci&&!ci.skip&&ci.score!=null?ci.score:null,streak:DATA.streak||0,
-    workoutToday:(f.sessions||[]).some(s=>s.date===t),habitsDone,habitsTotal:(DATA.habits||[]).length};
+    workoutToday:(f.sessions||[]).some(s=>s.date===t),habitsDone,habitsTotal:(DATA.habits||[]).length,week:supWeekShort()};
+}
+
+// ── статистика: считает код, модель не выдумывает цифры ─────
+
+function supDays(from,n){const out=[];for(let i=0;i<n;i++)out.push(shiftDay(todayKey(),-(from+i)));return out;}
+function supWeek(days){
+  const w={pts:0,habitDone:0,habitTotal:0,tasks:0,lecA:0,lecS:0,moods:[],sleeps:[],ready:[],workouts:0,wmin:0,water:0,perHabit:{}};
+  const hs=DATA.habits||[],f=DATA.fit||{};
+  days.forEach(k=>{
+    w.pts+=getDayPoints(k);
+    const hl=DATA.habitLogs[k]||{};
+    hs.forEach(h=>{w.habitTotal++;if(hl[h.id]){w.habitDone++;w.perHabit[h.id]=(w.perHabit[h.id]||0)+1;}});
+    Object.entries(DATA.tasks[k]||{}).forEach(([id,t])=>{if(id.startsWith('lec_')){if(t.done)w.lecA++;if(t.skipped)w.lecS++;}else if(t.done)w.tasks++;});
+    if(DATA.moods&&DATA.moods[k])w.moods.push(DATA.moods[k]);
+    const ci=(f.checkins||{})[k];if(ci&&!ci.skip){if(ci.sl!=null)w.sleeps.push(ci.sl);if(ci.score!=null)w.ready.push(ci.score);}
+    (f.sessions||[]).filter(x=>x.date===k).forEach(x=>{if(x.type!=='recovery')w.workouts++;w.wmin+=x.min||0;});
+    if(typeof waterTotalForDay==='function'&&DATA.water&&waterTotalForDay(DATA,k)>=DATA.water.goalMl)w.water++;
+  });
+  return w;
+}
+const supAvg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
+function supWeekShort(){
+  try{const w=supWeek(supDays(0,7));return w.pts+' баллов, привычки '+(w.habitTotal?Math.round(w.habitDone/w.habitTotal*100):0)+'%, тренировок '+w.workouts;}catch(e){return'';}
+}
+let SUP_TIPS=[];
+function supAdvice(){
+  supStatsReport();
+  if(!SUP_TIPS.length)return'Судя по неделе, у тебя всё ровно — привычки, сон и активность в порядке. Можно поставить маленькую новую цель: например, одну новую привычку или ещё одну тренировку в неделю.';
+  return'Если выбрать что-то одно, начни с этого:\n'+SUP_TIPS[0]+(SUP_TIPS[1]?'\n\nА потом: '+SUP_TIPS[1].charAt(0).toLowerCase()+SUP_TIPS[1].slice(1):'')+'\n\nОдин шаг за раз — так изменения держатся дольше.';
+}
+function supStatsReport(){
+  const w=supWeek(supDays(0,7)),p=supWeek(supDays(7,7));
+  const n=x=>String(Math.round(x*10)/10).replace('.',',');
+  const L=[],good=[],tips=[];
+  const diff=w.pts-p.pts;
+  L.push('• Баллы: '+w.pts+(p.pts||w.pts?' ('+(diff>=0?'+':'')+diff+' к прошлой неделе)':''));
+  L.push('• Серия входов: '+(DATA.streak||0)+' '+fitPlural(DATA.streak||0,'день','дня','дней')+' (рекорд — '+(DATA.longestStreak||0)+')');
+  if(w.habitTotal){
+    const pct=Math.round(w.habitDone/w.habitTotal*100),pp=p.habitTotal?Math.round(p.habitDone/p.habitTotal*100):null;
+    L.push('• Привычки: '+pct+'% выполнено'+(pp!=null?' (было '+pp+'%)':''));
+    const hs=(DATA.habits||[]).map(h=>({h,c:w.perHabit[h.id]||0})).sort((a,b)=>b.c-a.c);
+    if(hs[0]&&hs[0].c>=5)good.push('привычка «'+hs[0].h.name+'» — '+hs[0].c+' из 7 дней');
+    const weak=hs[hs.length-1];
+    if(weak&&weak.c<=3)tips.push('«'+weak.h.name+'» получилась только '+weak.c+' из 7 дней. Попробуй привязать её к тому, что делаешь каждый день: после завтрака, после пар.');
+    if(pct>=80)good.push('привычки почти на 100%');
+  }
+  if(w.tasks)L.push('• Дел сделано: '+w.tasks);
+  if(w.lecA+w.lecS){L.push('• Пары: посещено '+w.lecA+' из '+(w.lecA+w.lecS));if(w.lecS>=2)tips.push('Пропущено пар: '+w.lecS+'. Посмотри, какие именно, — может, их стоит переставить в планах.');}
+  if(w.workouts||w.wmin)L.push('• Тренировки: '+w.workouts+', '+w.wmin+' мин');
+  const sl=supAvg(w.sleeps),rd=supAvg(w.ready),md=supAvg(w.moods);
+  if(sl!=null)L.push('• Сон в среднем: '+n(sl)+' ч');
+  if(rd!=null)L.push('• Готовность в среднем: '+Math.round(rd)+' из 100');
+  if(md!=null)L.push('• Настроение в дневнике: '+n(md)+' из 5');
+  if(w.water)L.push('• Норма воды: '+w.water+' из 7 дней');
+  if(typeof weightEntriesSorted==='function'){
+    const e=weightEntriesSorted(DATA),t14=shiftDay(todayKey(),-14);
+    const old=e.filter(x=>x.key<=t14).slice(-1)[0]||e[0],last=e[e.length-1];
+    if(last&&old&&last.key!==old.key)L.push('• Вес: '+n(last.kg)+' кг ('+(last.kg-old.kg>=0?'+':'')+n(last.kg-old.kg)+' с '+fmtDate(dateFromKey(old.key))+')');
+  }
+  if(diff>0&&p.pts)good.push('баллов больше, чем неделю назад');
+  if((DATA.streak||0)>=7)good.push('серия '+DATA.streak+' дней — это уже привычка');
+  if(w.workouts>=2)good.push('тренировок на неделе: '+w.workouts);
+  if(sl!=null&&sl<7)tips.push('Сон в среднем '+n(sl)+' ч — меньше 7. Лечь на 30 минут раньше — самый дешёвый способ поднять энергию.');
+  if(!w.workouts&&DATA.fit&&DATA.fit.setupDone)tips.push('На неделе не было тренировок. Начни с короткой — в Fit есть варианты на 10–20 минут.');
+  if(diff<0&&p.pts&&-diff>p.pts*0.2)tips.push('Баллов меньше, чем неделю назад. Не страшно — выбери одну вещь, которую точно сделаешь завтра.');
+  if(md!=null&&md<=2.5)tips.push('Настроение на неделе было низким. Если хочешь, расскажи, что давит, — разберёмся вместе.');
+  SUP_TIPS=tips;
+  let t='Вот твоя неделя:\n'+L.join('\n');
+  if(good.length)t+='\n\nЧто получается: '+good.slice(0,3).join('; ')+'.';
+  if(tips.length)t+='\n\nНа что обратить внимание:\n'+tips.slice(0,3).map(x=>'• '+x).join('\n');
+  else t+='\n\nВсё ровно — так держать!';
+  return t;
 }
 
 // ── отправка и генерация ────────────────────────────────────
@@ -272,6 +383,8 @@ async function supSend(preset){
   // кризис и шутки — без модели: надёжно и мгновенно
   const sex=(DATA.calories||{}).gender||null;
   if(d.crisis){supPush({r:'a',t:supG(SUP_CRISIS_REPLY,sex),crisis:true,tools:['breath'],x:true});supRender();supScroll(true);return;}
+  if(d.intents[0]==='advice'){supPush({r:'a',t:supAdvice(),x:true});supRender();supScroll(true);return;}
+  if(d.intents[0]==='stats'){supPush({r:'a',t:supStatsReport(),x:true});supRender();supScroll(true);return;}
   if(d.intents[0]==='joke'){S.joke=((S.joke||0)+1)%SUP_JOKES.length;supPush({r:'a',t:SUP_JOKES[S.joke]+' 🙂',x:true});supRender();supScroll(true);return;}
   if(SUP_STATE!=='ready'){
     supPush({r:'a',t:SUP_STATE==='downloading'||SUP_STATE==='loading'?'Я почти готов — модель ещё загружается. Как только закончится, отвечу.':'Чтобы я мог отвечать, нужно один раз скачать модель — кнопка выше.',x:true});
@@ -412,7 +525,7 @@ function supClearChat(){
 
 async function supDeleteModel(){
   if(!confirm('Удалить модель с устройства? Чтобы снова пользоваться чатом, её придётся скачать заново.'))return;
-  try{if(SUP_W)await SUP_W.exit();}catch(e){}
+  try{const w=await supEngine();await w.exit();await w.cacheManager.delete(SUP_OPFS_NAME());}catch(e){}
   SUP_W=null;
   try{await caches.delete(SUP_CACHE);}catch(e){}
   closeOverlay();
