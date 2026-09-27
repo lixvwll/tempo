@@ -1742,3 +1742,9 @@ textarea.field-inp{resize:vertical;min-height:60px;line-height:1.5;}
 .vc-text{font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:16px;}
 .vc-points{font-size:18px;font-weight:600;color:var(--good);}
 .active-vacation{color:var(--good);font-weight:500;}
+.notif-btn{color:var(--muted);}
+.active-notif{color:var(--warn);font-size:10px;font-weight:600;}
+.reminder-options{display:flex;flex-direction:column;gap:10px;}
+.reminder-opt{background:var(--surface2);border:0.5px solid var(--border2);color:var(--text);font-size:14px;padding:14px;border-radius:var(--r);cursor:pointer;font-family:inherit;text-align:left;transition:all 0.15s;}
+.reminder-opt.active{background:var(--warn-soft);border-color:var(--warn);color:var(--warn);font-weight:500;}
+.reminder-opt-off{color:var(--bad);border-color:rgba(226,100,100,0.3);background:var(--bad-soft);}

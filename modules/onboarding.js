@@ -111,8 +111,10 @@ function startNotificationLoop(){
       if(!e.start||e.done||e.skipped)return;
       const s=timeToMin(e.start);
       const diff=s-nowMin;
-      if(diff>=14&&diff<=16&&!sent[todayK+'_'+e.id]){
-        new Notification('Через 15 минут: '+e.name,{body:e.meta||typeName(e.type),icon:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0NSIgZmlsbD0iIzY1OTkyMiIvPjwvc3ZnPg=='});
+      const remind=(DATA.reminders&&DATA.reminders[todayK+'_'+e.id])||0;
+      if(!remind)return;
+      if(diff>=(remind-1)&&diff<=(remind+1)&&!sent[todayK+'_'+e.id]){
+        new Notification('Через '+remind+' мин: '+e.name,{body:e.meta||typeName(e.type),icon:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0NSIgZmlsbD0iIzY1OTkyMiIvPjwvc3ZnPg=='});
         sent[todayK+'_'+e.id]=true;
         sessionStorage.setItem(sentKey,JSON.stringify(sent));
       }

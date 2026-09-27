@@ -84,8 +84,8 @@ function renderSettings(){
     <div class="set-card">
       <div class="set-row">
         <div>
-          <div class="set-label">Напоминания за 15 минут</div>
-          <div class="set-desc">${Notification&&Notification.permission==='granted'?'Включены':Notification&&Notification.permission==='denied'?'Заблокированы в браузере':'Включи чтобы не пропускать пары и дела'}</div>
+          <div class="set-label">Напоминания о делах</div>
+          <div class="set-desc">${Notification&&Notification.permission==='granted'?'Включены — настрой время в карточке каждого дела':Notification&&Notification.permission==='denied'?'Заблокированы в браузере':'Включи — и сам выбирай за сколько минут напомнить о каждом деле'}</div>
         </div>
         ${Notification&&Notification.permission==='granted'?'<span style="color:var(--good);font-size:11px;">✓</span>':`<button class="icon-btn" onclick="requestNotifPermission()">Включить</button>`}
       </div>
@@ -363,7 +363,7 @@ function openAbout(){
 
       <div class="about-section">
         <div class="about-section-title">Версия</div>
-        <div class="about-text" style="color:var(--muted);">Tempo 2.3 · Weight Loss System</div>
+        <div class="about-text" style="color:var(--muted);">Tempo 2.5.1 · Сделано с заботой о тебе</div>
       </div>
     </div>
   `;

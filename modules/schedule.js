@@ -34,6 +34,7 @@ function renderSchedule(){
           <div class="tc-actions">
             <button class="tc-btn done-btn ${e.done?'active-done':''}" onclick="markDone('${e.id}',${e.isLecture})" title="Сделано">✓</button>
             <button class="tc-btn skip-btn ${e.skipped?'active-skip':''}" onclick="markSkip('${e.id}',${e.isLecture})" title="Пропущено">×</button>
+            ${e.start?`<button class="tc-btn notif-btn ${getReminderMin(SCHED_DAY,e.id)?'active-notif':''}" onclick="openReminderPicker('${SCHED_DAY}','${e.id}','${escHtml(e.name)}')" title="Напомнить">${getReminderMin(SCHED_DAY,e.id)?getReminderMin(SCHED_DAY,e.id)+'м':'🔔'}</button>`:''}
             ${!e.isLecture?`<button class="tc-btn" onclick="editTask('${e.id}')" title="Изменить">✎</button>`:''}
           </div>
         </div>
@@ -195,6 +196,54 @@ function deleteTask(){
   if(!EDITING_TASK)return;
   if(!confirm('Удалить это дело?'))return;
   delete DATA.tasks[SCHED_DAY][EDITING_TASK];
+  saveData();
+  closeOverlay();
+  renderSchedule();
+}
+
+// === REMINDERS ===
+function getReminderMin(dayKey,eventId){
+  return (DATA.reminders&&DATA.reminders[dayKey+'_'+eventId])||0;
+}
+
+function openReminderPicker(dayKey,eventId,eventName){
+  if(Notification&&Notification.permission!=='granted'){
+    showToast('Сначала включи уведомления в настройках','bad');
+    return;
+  }
+  const current=getReminderMin(dayKey,eventId);
+  const ol=document.getElementById('overlay');
+  const panel=document.getElementById('panel');
+  panel.innerHTML=`
+    <div class="panel-head">
+      <h2>Напомнить до</h2>
+      <button class="close-btn" onclick="closeOverlay()">×</button>
+    </div>
+    <div class="panel-scroll" style="padding:16px;">
+      <div style="font-size:13px;color:var(--text2);margin-bottom:18px;">${escHtml(eventName)}</div>
+      <div class="reminder-options">
+        ${[5,10,15].map(m=>`
+          <button class="reminder-opt${current===m?' active':''}" onclick="setReminder('${dayKey}','${eventId}',${m})">
+            За ${m} минут
+          </button>
+        `).join('')}
+        ${current?`<button class="reminder-opt reminder-opt-off" onclick="setReminder('${dayKey}','${eventId}',0)">Отключить 🔕</button>`:''}
+      </div>
+    </div>
+  `;
+  ol.classList.add('open');
+}
+
+function setReminder(dayKey,eventId,minutes){
+  if(!DATA.reminders)DATA.reminders={};
+  const key=dayKey+'_'+eventId;
+  if(minutes===0){
+    delete DATA.reminders[key];
+    showToast('Напоминание отключено');
+  }else{
+    DATA.reminders[key]=minutes;
+    showToast('Напомним за '+minutes+' минут','good');
+  }
   saveData();
   closeOverlay();
   renderSchedule();
