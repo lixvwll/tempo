@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tempo-v2.7';
+const CACHE_NAME = 'tempo-v2.8';
 const ASSETS = [
   '/tempo/',
   '/tempo/index.html',
@@ -19,6 +19,8 @@ const ASSETS = [
   '/tempo/modules/fit-engine.js',
   '/tempo/modules/fit.js',
   '/tempo/modules/fit-player.js',
+  '/tempo/modules/support-brain.js',
+  '/tempo/modules/support.js',
   '/tempo/fit/exercises.json',
   '/tempo/fit/programs.json',
   '/tempo/app.js',
@@ -45,14 +47,31 @@ self.addEventListener('activate', e => {
   self.clients.claim();
 });
 
+// Изоляция страницы (COOP/COEP): нужна, чтобы нейросеть поддержки считала
+// в несколько потоков (SharedArrayBuffer). Все ресурсы Tempo — свои, так что
+// ничего не ломается. Включается со второй загрузки, когда SW уже активен.
+const COI = true;
+function withCOI(res) {
+  if (!COI || !res || res.status === 0 || res.type === 'opaque') return res;
+  const h = new Headers(res.headers);
+  h.set('Cross-Origin-Embedder-Policy', 'require-corp');
+  h.set('Cross-Origin-Opener-Policy', 'same-origin');
+  h.set('Cross-Origin-Resource-Policy', 'same-origin');
+  return new Response(res.body, { status: res.status, statusText: res.statusText, headers: h });
+}
+
 // Fetch — сначала сеть, при ошибке кэш
 // Для news.json всегда идём в сеть (свежий контент)
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
+  if (e.request.method !== 'GET' || url.origin !== self.location.origin) return;
+
+  // Куски модели (~640 МБ) чат кэширует сам — не дублируем их в кэше SW
+  if (url.pathname.includes('/ai/')) return;
 
   if (url.pathname.endsWith('news.json') || url.pathname.endsWith('tips.json')) {
     e.respondWith(
-      fetch(e.request).catch(() => caches.match(e.request))
+      fetch(e.request).then(withCOI).catch(() => caches.match(e.request).then(withCOI))
     );
     return;
   }
@@ -62,9 +81,9 @@ self.addEventListener('fetch', e => {
       .then(res => {
         const clone = res.clone();
         caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
-        return res;
+        return withCOI(res);
       })
-      .catch(() => caches.match(e.request))
+      .catch(() => caches.match(e.request).then(withCOI))
   );
 });
 

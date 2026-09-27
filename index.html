@@ -68,6 +68,7 @@
         <div class="tb-pts" id="tb-pts">0 баллов</div>
       </div>
       <div class="tb-actions">
+        <button class="tb-icon" id="sup-btn" onclick="supOpen()" title="Поддержка" aria-label="Поддержка"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 11.5a8 8 0 0 1-11.8 7L4 19.8l1.3-4.3A8 8 0 1 1 20.5 11.5z"/><path d="M9 10.5h.01M12.5 10.5h.01M16 10.5h.01" stroke-width="2.4"/></svg></button>
         <button class="tb-icon tb-stories-btn" id="tb-stories-btn" onclick="openStoriesFromBar()" title="Новости">✦<div class="tb-stories-dot" id="tb-stories-dot" style="display:none;"></div></button>
         <button class="tb-icon" id="theme-toggle" onclick="toggleTheme()" title="Тема">◐</button>
         <button class="tb-icon" id="top-menu-btn" onclick="openTopMenu()" title="Меню" style="font-size:20px;font-weight:400;">≡</button>
@@ -228,6 +229,8 @@
 <script src="modules/fit-engine.js"></script>
 <script src="modules/fit.js"></script>
 <script src="modules/fit-player.js"></script>
+<script src="modules/support-brain.js"></script>
+<script src="modules/support.js"></script>
 <script src="app.js"></script>
 <script>
 if('serviceWorker' in navigator){

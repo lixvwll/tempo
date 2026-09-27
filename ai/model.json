@@ -1,0 +1,80 @@
+{
+ "id": "qwen35-0.8b-q6k-v1",
+ "name": "Qwen3.5-0.8B (Q6_K)",
+ "source": "https://huggingface.co/unsloth/Qwen3.5-0.8B-GGUF",
+ "license": "Apache-2.0",
+ "size": 639029504,
+ "sha256": "8408c5c222111cec253682b49eece2a02ed641ded68490001ec4ee160e71098e",
+ "parts": [
+  {
+   "f": "tempo-q6k.part01",
+   "size": 47185920,
+   "sha256": "d0c35561115582819e202ef961087145537f975a6d0ebcc091bc0d1a33f890f2"
+  },
+  {
+   "f": "tempo-q6k.part02",
+   "size": 47185920,
+   "sha256": "28655ba9698eb12bb8998f8fc9230594918d01621b8511c6078979aa1ec373da"
+  },
+  {
+   "f": "tempo-q6k.part03",
+   "size": 47185920,
+   "sha256": "d29ba750ebc5b723e4516c7aa62ae6a0a3e4f9fd2e8fbdb7e51da640bad87753"
+  },
+  {
+   "f": "tempo-q6k.part04",
+   "size": 47185920,
+   "sha256": "58ff3e77627683d2b8a04a61cfc22a8f984aaba103cad6661bd40e8281ab3ef1"
+  },
+  {
+   "f": "tempo-q6k.part05",
+   "size": 47185920,
+   "sha256": "dd5076ae6b362502f10f393879541b846dd33f0948a51365b15be0e5b6db065b"
+  },
+  {
+   "f": "tempo-q6k.part06",
+   "size": 47185920,
+   "sha256": "9cdce4549d0ce597cbd5d23a5b9cc5c5bb016c0ef5a7db765dd92267f70f3d51"
+  },
+  {
+   "f": "tempo-q6k.part07",
+   "size": 47185920,
+   "sha256": "ee2e14ff34a68ff7c0be048ec36f43068b768f0e4451bc40fed1da20542192a5"
+  },
+  {
+   "f": "tempo-q6k.part08",
+   "size": 47185920,
+   "sha256": "4375dbf9e8f740749d1a7f143af5187f2438344ddd82bb0bd8a35e4ea15f6430"
+  },
+  {
+   "f": "tempo-q6k.part09",
+   "size": 47185920,
+   "sha256": "9e150d682afec1835817a3be068e0da0dc10727ee7955f5f8a9b6cdf0b431bf9"
+  },
+  {
+   "f": "tempo-q6k.part10",
+   "size": 47185920,
+   "sha256": "94901a203d3bf486224e5191da73aeb6ef303bba2a9b3b9693bc2d3dbc08ebe6"
+  },
+  {
+   "f": "tempo-q6k.part11",
+   "size": 47185920,
+   "sha256": "8ac5b2723c1a1d42a76a49e5ce1bbc4c316127e9f42b497829d8379886df720e"
+  },
+  {
+   "f": "tempo-q6k.part12",
+   "size": 47185920,
+   "sha256": "902430e66d689d2a421186efae0fa3dec3a3521d74e33e0b8270401fdfd3db5b"
+  },
+  {
+   "f": "tempo-q6k.part13",
+   "size": 47185920,
+   "sha256": "62fc33c13ae2587b77d1507616381938ed75406966bb5c21ce655db320e12c1d"
+  },
+  {
+   "f": "tempo-q6k.part14",
+   "size": 25612544,
+   "sha256": "2149c847b1f04e7e247ce4b38028adffd869562605bb93c1f03899b4977232ea"
+  }
+ ]
+}
