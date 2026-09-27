@@ -98,6 +98,8 @@ function renderStats(){
       </div>
     </div>
 
+    ${renderFitStatsBlock(days,prevDays)}
+
     <div class="stat-block">
       <div class="sb-head"><span class="sb-title">Рекорды (за всё время)</span></div>
       <div class="records-grid">
@@ -122,6 +124,27 @@ function renderStats(){
   `;
 
   root.innerHTML=html;
+}
+
+function renderFitStatsBlock(days,prevDays){
+  const ss=fitSessionsOf(DATA);
+  if(!ss.length)return'';
+  const inP=list=>{const set=new Set(list);return ss.filter(s=>set.has(s.date));};
+  const cur=inP(days),prev=inP(prevDays);
+  const mins=cur.reduce((a,s)=>a+(s.min||0),0);
+  const ci=(DATA.fit.checkins)||{};
+  const scores=days.map(k=>ci[k]).filter(c=>c&&!c.skip&&c.score!=null).map(c=>c.score);
+  const avg=scores.length?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length):null;
+  return`
+    <div class="stat-block">
+      <div class="sb-head"><span class="sb-title">Tempo Fit</span>${trendBadge(trendOf(cur.length,prev.length))}</div>
+      <div class="records-grid">
+        <div class="record-cell"><div class="record-val">${cur.length}</div><div class="record-lbl">Тренировок</div></div>
+        <div class="record-cell"><div class="record-val">${mins}</div><div class="record-lbl">Минут</div></div>
+        <div class="record-cell"><div class="record-val">${avg!=null?avg:'—'}</div><div class="record-lbl">Готовность</div></div>
+        <div class="record-cell"><div class="record-val">${cur.reduce((a,s)=>a+(s.prs||[]).length,0)}</div><div class="record-lbl">Рекордов</div></div>
+      </div>
+    </div>`;
 }
 
 function setStatsPeriod(p){STATS_PERIOD=p;renderStats();}

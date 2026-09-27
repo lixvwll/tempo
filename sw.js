@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tempo-v2.6';
+const CACHE_NAME = 'tempo-v2.7';
 const ASSETS = [
   '/tempo/',
   '/tempo/index.html',
@@ -16,6 +16,11 @@ const ASSETS = [
   '/tempo/modules/stories.js',
   '/tempo/modules/weight.js',
   '/tempo/modules/calories.js',
+  '/tempo/modules/fit-engine.js',
+  '/tempo/modules/fit.js',
+  '/tempo/modules/fit-player.js',
+  '/tempo/fit/exercises.json',
+  '/tempo/fit/programs.json',
   '/tempo/app.js',
   '/tempo/manifest.json'
 ];

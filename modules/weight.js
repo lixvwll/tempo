@@ -40,7 +40,7 @@ function addWaterEntry(ml,icon){
     showToast('+'+POINTS.waterCup+' балла · '+ml+' мл добавлено');
   }
   saveData();
-  if(CURRENT_SCREEN==='weight')renderWeight();
+  if(CURRENT_SCREEN==='fit')renderWeight();
   updateTopBar();
 }
 
@@ -57,7 +57,7 @@ function removeWaterEntry(i){
     addPoints(-POINTS.waterGoal,'water goal undo');
   }
   saveData();
-  if(CURRENT_SCREEN==='weight')renderWeight();
+  if(CURRENT_SCREEN==='fit')renderWeight();
   updateTopBar();
 }
 

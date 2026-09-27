@@ -80,7 +80,11 @@
     <div class="main-screen" id="ms-challenges"></div>
     <div class="main-screen" id="ms-journal"></div>
     <div class="main-screen" id="ms-habits"></div>
-    <div class="main-screen" id="ms-weight"></div>
+    <div class="main-screen" id="ms-fit">
+      <div class="fit-seg" id="fit-seg"></div>
+      <div id="fit-view"></div>
+      <div id="ms-weight" style="display:none;"></div>
+    </div>
     <div class="main-screen" id="ms-settings"></div>
 
   </div>
@@ -90,7 +94,7 @@
       <button class="bn-btn active" data-screen="home" onclick="navTo('home')"><span class="bn-icon">●</span><span>Сейчас</span></button>
       <button class="bn-btn" data-screen="schedule" onclick="navTo('schedule')"><span class="bn-icon">▤</span><span>День</span></button>
       <button class="bn-btn" data-screen="habits" onclick="navTo('habits')"><span class="bn-icon">◇</span><span>Привычки</span></button>
-      <button class="bn-btn" data-screen="weight" onclick="navTo('weight')"><span class="bn-icon">⚖</span><span>Вес</span></button>
+      <button class="bn-btn" data-screen="fit" onclick="navTo('fit')"><span class="bn-icon">◈</span><span>Fit</span></button>
       <button class="bn-btn" id="bn-menu-btn" onclick="openMoreMenu()"><span class="bn-icon">≡</span><span>Ещё</span></button>
     </div>
   </div>
@@ -221,6 +225,9 @@
 <script src="modules/stories.js"></script>
 <script src="modules/weight.js"></script>
 <script src="modules/calories.js"></script>
+<script src="modules/fit-engine.js"></script>
+<script src="modules/fit.js"></script>
+<script src="modules/fit-player.js"></script>
 <script src="app.js"></script>
 <script>
 if('serviceWorker' in navigator){

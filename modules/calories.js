@@ -130,6 +130,8 @@ function renderCaloriesSection(){
       </div>
     </div>
 
+    ${typeof fitTodayKcal==='function'&&fitTodayKcal()?`<div class="cal-fit-line">🔥 На тренировках сегодня ≈ ${fitTodayKcal()} ккал · это оценка, норма не меняется</div>`:''}
+
     <button class="cal-add-btn" onclick="openCalAddModal()">
       <span class="cal-add-plus">+</span>
       <span>Добавить продукт</span>

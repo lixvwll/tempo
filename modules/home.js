@@ -127,6 +127,8 @@ function renderHome(){
       <button class="cta-btn" onclick="navTo('habits')">Привычки</button>
     </div>
 
+    ${renderFitWidget()}
+
     ${renderCaloriesWidget()}
 
     ${renderExportBanner()}

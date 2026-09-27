@@ -31,6 +31,9 @@ const POINTS={
   waterGoal:10,
   weightLog:3,
   vacationOn:50,
+  fitCheckin:2,
+  fitWorkout:10,
+  fitRecovery:5,
 };
 
 // Пресеты для трекера воды (как в фитнес-приложениях)
@@ -93,6 +96,7 @@ function emptyData(name){
     weight:{start:null,goal:null,height:null,log:{}},
     water:{goalMl:DEFAULT_WATER_GOAL,log:{},bonusDays:{}},
     calories:{goalKcal:1500,log:{},savedFoods:[]},
+    fit:fitEnsure({}).fit,
     reminders:{},
     vacationMode:false,
   };
@@ -145,11 +149,24 @@ const ACHIEVEMENTS=[
   {id:'a_weight_10',icon:'🎯',title:'Минус 10 кг',desc:'Потерять 10 кг от стартового веса',group:'weight',check:d=>weightLost(d)>=10,prog:d=>Math.min(1,weightLost(d)/10)},
   {id:'a_weight_goal',icon:'🏆',title:'Цель достигнута!',desc:'Достичь целевого веса',group:'weight',check:d=>weightGoalReached(d),prog:d=>weightGoalProgress(d)},
 
+  // === FIT ===
+  {id:'a_fit_first',icon:'🏋',title:'Первая тренировка',desc:'Завершить первую тренировку в Tempo Fit',group:'fit',check:d=>fitWorkoutsCount(d)>=1},
+  {id:'a_fit_recovery',icon:'🧘',title:'Умею отдыхать',desc:'Провести восстановительную тренировку',group:'fit',check:d=>fitSessionsOf(d).some(s=>s.type==='recovery')},
+  {id:'a_fit_checkin7',icon:'🧭',title:'Слышу себя',desc:'7 чек-инов самочувствия подряд',group:'fit',check:d=>fitMaxCheckinStreak(d)>=7,prog:d=>Math.min(1,fitMaxCheckinStreak(d)/7)},
+  {id:'a_fit_10',icon:'💪',title:'Десятка',desc:'10 тренировок',group:'fit',check:d=>fitWorkoutsCount(d)>=10,prog:d=>Math.min(1,fitWorkoutsCount(d)/10)},
+  {id:'a_fit_pr',icon:'📈',title:'Новый рекорд',desc:'Побить личный рекорд в упражнении',group:'fit',check:d=>fitSessionsOf(d).some(s=>(s.prs||[]).length>0)},
+  {id:'a_fit_weeks4',icon:'📆',title:'В режиме',desc:'4 недели подряд минимум по 2 тренировки',group:'fit',check:d=>fitWeeksInRow(d)>=4,prog:d=>Math.min(1,fitWeeksInRow(d)/4)},
+  {id:'a_fit_early',icon:'🌅',title:'Ранняя пташка',desc:'Тренировка, начатая до 8 утра',group:'fit',check:d=>fitSessionsOf(d).some(s=>{if(!s.start)return false;const h=new Date(s.start).getHours();return h>=4&&h<8;})},
+  {id:'a_fit_50',icon:'🥇',title:'Полсотни',desc:'50 тренировок',group:'fit',check:d=>fitWorkoutsCount(d)>=50,prog:d=>Math.min(1,fitWorkoutsCount(d)/50)},
+  {id:'a_fit_1000',icon:'⏱',title:'Тысяча минут',desc:'1000 минут тренировок',group:'fit',check:d=>fitTotalMinutes(d)>=1000,prog:d=>Math.min(1,fitTotalMinutes(d)/1000)},
+  {id:'a_fit_program',icon:'🎓',title:'Программа пройдена',desc:'Пройти программу тренировок целиком',group:'fit',check:d=>((d.fit||{}).done||[]).length>=1},
+  {id:'a_fit_100',icon:'🏆',title:'Сотня тренировок',desc:'100 тренировок',group:'fit',check:d=>fitWorkoutsCount(d)>=100,prog:d=>Math.min(1,fitWorkoutsCount(d)/100)},
+
   // === КАНИКУЛЫ ===
   {id:'a_vacation',icon:'🌴',title:'Каникулы!',desc:'Включил режим каникул',group:'starter',check:d=>!!d.vacationMode},
 ];
 
-const ACH_GROUPS={starter:'Начало',streak:'Серии',study:'Учёба',habit:'Привычки',journal:'Дневник',points:'Баллы',challenge:'Челленджи',water:'💧 Вода',weight:'⚖ Вес'};
+const ACH_GROUPS={starter:'Начало',streak:'Серии',study:'Учёба',habit:'Привычки',journal:'Дневник',points:'Баллы',challenge:'Челленджи',water:'💧 Вода',weight:'⚖ Вес',fit:'🏋 Fit'};
 
 // === ВОДА: вспомогательные ===
 function waterTotalForDay(d,key){const e=(d.water&&d.water.log&&d.water.log[key])||[];return e.reduce((a,x)=>a+(x.ml||0),0);}
@@ -172,6 +189,49 @@ function latestWeight(d){const e=weightEntriesSorted(d);return e.length?e[e.leng
 function weightLost(d){const w=d.weight||{};const start=w.start;const latest=latestWeight(d);if(start==null||latest==null)return 0;return Math.max(0,start-latest);}
 function weightGoalReached(d){const w=d.weight||{};const latest=latestWeight(d);if(w.goal==null||latest==null||w.start==null)return false;return latest<=w.goal&&w.start>w.goal;}
 function weightGoalProgress(d){const w=d.weight||{};const latest=latestWeight(d);if(w.goal==null||latest==null||w.start==null||w.start<=w.goal)return 0;return Math.min(1,(w.start-latest)/(w.start-w.goal));}
+
+// === FIT: данные и вспомогательные ===
+function fitEnsure(d){
+  if(!d.fit)d.fit={};
+  const f=d.fit;
+  if(!f.profile)f.profile={goal:'fitness',level:'novice',days:[0,2,4],min:30,place:'home',equip:{home:['step'],outdoor:['pullup_bar','dip_bars']},limits:[],parq:[],prefs:{},test:{}};
+  if(!f.profile.equip)f.profile.equip={home:['step'],outdoor:['pullup_bar','dip_bars']};
+  if(!f.profile.prefs)f.profile.prefs={};
+  if(!f.profile.limits)f.profile.limits=[];
+  if(!f.program)f.program={id:'smart'};
+  if(!f.checkins)f.checkins={};
+  if(!Array.isArray(f.sessions))f.sessions=[];
+  if(!f.fav)f.fav=[];
+  if(!f.ban)f.ban=[];
+  if(!f.regen)f.regen={};
+  if(!f.awards)f.awards={};
+  if(!f.done)f.done=[];
+  if(f.setupDone===undefined)f.setupDone=false;
+  if(f.active===undefined)f.active=null;
+  if(f.day===undefined)f.day=null;
+  if(!f.today)f.today={};
+  if(!f.tab)f.tab='today';
+  if(f.sound===undefined)f.sound=true;
+  return d;
+}
+function fitSessionsOf(d){return((d.fit||{}).sessions)||[];}
+function fitWorkoutsCount(d){return fitSessionsOf(d).filter(s=>s.type!=='recovery').length;}
+function fitTotalMinutes(d){return fitSessionsOf(d).reduce((a,s)=>a+(s.min||0),0);}
+function fitMaxCheckinStreak(d){
+  const c=(d.fit||{}).checkins||{};
+  const keys=Object.keys(c).filter(k=>!c[k].skip).sort();
+  let best=0,cur=0,prev=null;
+  keys.forEach(k=>{cur=prev&&shiftDay(prev,1)===k?cur+1:1;if(cur>best)best=cur;prev=k;});
+  return best;
+}
+function fitWeeksInRow(d){
+  const weeks={};
+  fitSessionsOf(d).filter(s=>s.type!=='recovery').forEach(s=>{const dt=dateFromKey(s.date);dt.setDate(dt.getDate()-dayOfWeek(dt));const k=todayKey(dt);weeks[k]=(weeks[k]||0)+1;});
+  const keys=Object.keys(weeks).filter(k=>weeks[k]>=2).sort();
+  let best=0,cur=0,prev=null;
+  keys.forEach(k=>{cur=prev&&shiftDay(prev,7)===k?cur+1:1;if(cur>best)best=cur;prev=k;});
+  return best;
+}
 
 function countTasksDone(d){let n=0;Object.values(d.tasks||{}).forEach(day=>{Object.entries(day).forEach(([k,t])=>{if(!k.startsWith('lec_')&&t.done)n++;});});return n;}
 function countLecturesAttended(d){let n=0;Object.values(d.tasks||{}).forEach(day=>{Object.entries(day).forEach(([k,t])=>{if(k.startsWith('lec_')&&t.done)n++;});});return n;}
@@ -254,6 +314,7 @@ function migrateData(d){
   if(!d.calories)d.calories={goalKcal:0,log:{},savedFoods:[],age:null,gender:null,activity:null,setupDone:false};
   if(!d.calories.log)d.calories.log={};
   if(!d.calories.savedFoods)d.calories.savedFoods=[];
+  fitEnsure(d);
   return d;
 }
 
@@ -324,6 +385,7 @@ function renderCurrentScreen(){
   if(CURRENT_SCREEN==='home')renderHome();
   else if(CURRENT_SCREEN==='schedule')renderSchedule();
   else if(CURRENT_SCREEN==='settings')renderSettings();
+  else if(CURRENT_SCREEN==='fit')renderFit();
   updateTopBar();
 }
 
@@ -429,6 +491,8 @@ function goHome(){
 }
 
 function navTo(screen){
+  // «Вес» теперь живёт внутри Fit → Тело
+  if(screen==='weight'){fitEnsure(DATA);DATA.fit.tab='body';screen='fit';}
   CURRENT_SCREEN=screen;
   document.querySelectorAll('.main-screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('ms-'+screen).classList.add('active');
@@ -449,7 +513,7 @@ function navTo(screen){
   else if(screen==='challenges')renderChallenges();
   else if(screen==='journal')renderJournal();
   else if(screen==='habits')renderHabits();
-  else if(screen==='weight')renderWeight();
+  else if(screen==='fit')renderFit();
   else if(screen==='settings')renderSettings();
   updateTopBar();
 }

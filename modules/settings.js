@@ -363,7 +363,7 @@ function openAbout(){
 
       <div class="about-section">
         <div class="about-section-title">Версия</div>
-        <div class="about-text" style="color:var(--muted);">Tempo 2.5.1 · Сделано с заботой о тебе</div>
+        <div class="about-text" style="color:var(--muted);">Tempo 2.6 · Tempo Fit · Сделано с заботой о тебе</div>
       </div>
     </div>
   `;

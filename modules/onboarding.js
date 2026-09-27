@@ -29,6 +29,8 @@ function showWeeklySummary(){
   });
 
   const ptsTrend=trendOf(ptsCur,ptsPrev);
+  const fitWeek=fitSessionsOf(DATA).filter(s=>days.includes(s.date));
+  const fitWeekCount=fitWeek.length,fitWeekMin=fitWeek.reduce((a,s)=>a+(s.min||0),0);
 
   const quotes=[
     'Неделя сложилась так как сложилась — это уже факт. Что важно — что ты возвращаешься.',
@@ -66,6 +68,11 @@ function showWeeklySummary(){
           <div class="summary-row"><span class="summary-lbl">Дел сделано</span><span class="summary-val">${tasksDone}</span></div>
           <div class="summary-row" style="margin-top:6px;"><span class="summary-lbl">Привычек закрыто</span><span class="summary-val">${habitsDone}</span></div>
         </div>
+
+        ${fitWeekCount?`<div class="summary-block">
+          <div class="summary-row"><span class="summary-lbl">Тренировок</span><span class="summary-val">${fitWeekCount}</span></div>
+          <div class="summary-row" style="margin-top:6px;"><span class="summary-lbl">Минут активности</span><span class="summary-val">${fitWeekMin}</span></div>
+        </div>`:''}
 
         <div class="summary-quote">${quote}</div>
 
