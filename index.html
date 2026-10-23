@@ -119,6 +119,11 @@
         <span class="bm-item-label">Дневник</span>
         <span class="bm-item-arrow">›</span>
       </button>
+      <button class="bm-item" onclick="closeMoreMenu();setTimeout(openTipsLib,180)">
+        <span class="bm-item-icon">✦</span>
+        <span class="bm-item-label">Советы</span>
+        <span class="bm-item-arrow">›</span>
+      </button>
     </div>
     <div class="bm-bottom-safe"></div>
   </div>
@@ -180,23 +185,22 @@
   <button class="st-nav" onclick="storyNext()" aria-label="Дальше">›</button>
 </div>
 
-<!-- Tips Library -->
-<div class="tips-lib" id="tips-lib">
-  <div class="tips-lib-header">
-    <button class="tips-lib-back" onclick="closeTipsLib()" aria-label="Назад">‹</button>
-    <div class="tips-lib-title" id="tips-lib-title">Библиотека советов</div>
-    <div style="width:36px;"></div>
-  </div>
-  <div class="tips-lib-content" id="tips-lib-content"></div>
+<!-- Библиотека советов: лента карточек (modules/tips.js) -->
+<div class="tl" id="tips-lib">
+  <div class="tl-scroll" id="tl-scroll"></div>
 </div>
 
-<!-- Tip Detail -->
-<div class="tip-detail-overlay" id="tip-detail-overlay" onclick="closeTipDetail()"></div>
-<div class="tip-detail" id="tip-detail">
-  <div class="tip-detail-handle"></div>
-  <div class="tip-detail-emoji" id="tip-detail-emoji"></div>
-  <div class="tip-detail-title" id="tip-detail-title"></div>
-  <div class="tip-detail-body" id="tip-detail-body"></div>
+<!-- Совет: короткие экраны как в сториз -->
+<div class="tv" id="tip-view">
+  <button class="st-nav" onclick="tipPrev()" aria-label="Назад">‹</button>
+  <div class="tv-frame tl-pst" id="tv-frame">
+    <div class="tv-bars" id="tv-bars"></div>
+    <div class="tv-top"><div class="tv-who" id="tv-who"></div><button class="tv-x" onclick="closeTip()" aria-label="Закрыть">×</button></div>
+    <div class="st-tap l" onclick="tvTap(-1)"></div>
+    <div class="st-tap r" onclick="tvTap(1)"></div>
+    <div class="tv-stage" id="tv-stage"></div>
+  </div>
+  <button class="st-nav" onclick="tipNext()" aria-label="Дальше">›</button>
 </div>
 
 <input type="file" id="import-file" accept=".json"/>
@@ -212,6 +216,7 @@
 <script src="modules/settings.js"></script>
 <script src="modules/onboarding.js"></script>
 <script src="modules/stories.js"></script>
+<script src="modules/tips.js"></script>
 <script src="modules/weight.js"></script>
 <script src="modules/calories.js"></script>
 <script src="modules/fit-engine.js"></script>

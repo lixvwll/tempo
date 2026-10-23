@@ -25,7 +25,6 @@ const TIPS_LIBRARY_CARD={
   color:'teal',date:''
 };
 
-let TIPS_DATA=null;
 const ST_CTA_SCREENS=['home','schedule','habits','fit','stats','challenges','journal','settings'];
 // Цвет истории: основной, второй (уходит в угол градиента) и светлый оттенок сверху
 const ST_PAL={
@@ -41,7 +40,7 @@ const ST_ARROW='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stro
 
 async function fetchStories(){
   if(STORIES_DATA)return STORIES_DATA;
-  fetchTips(); // темы для карточки библиотеки — заранее
+  fetchTips(); // темы для карточки библиотеки — заранее (modules/tips.js)
   try{
     const res=await fetch('news.json?_='+Date.now());
     if(!res.ok)throw new Error('not ok');
@@ -59,16 +58,6 @@ async function fetchStories(){
     ]};
     return STORIES_DATA;
   }
-}
-
-async function fetchTips(){
-  if(TIPS_DATA)return TIPS_DATA;
-  try{
-    const res=await fetch('tips.json?_='+Date.now());
-    if(!res.ok)throw new Error('not ok');
-    TIPS_DATA=await res.json();
-    return TIPS_DATA;
-  }catch(e){return null;}
 }
 
 async function checkStoriesUnread(){
@@ -112,7 +101,9 @@ function showStory(){
   let h=`<div class="st-sticker" aria-hidden="true">${escHtml(item.emoji||'✨')}</div><div class="st-content">`+
     `<div class="st-kicker">${escHtml(label)}</div>`;
   if(item.stat)h+=`<div class="st-num">${escHtml(item.stat.value)}</div><div class="st-num-lbl">${escHtml(item.stat.label)}</div>`;
-  h+=`<div class="st-title">${escHtml(item.title)}</div><div class="st-text">${escHtml(item.body)}</div>`;
+  const n=isLib&&TIPS_DATA?TIPS_DATA.tips.length:0;
+  const body=n?`${n} ${tlPlural(n,'короткий совет','коротких совета','коротких советов')} — проверенные, с источниками. Выбери тему:`:item.body;
+  h+=`<div class="st-title">${escHtml(item.title)}</div><div class="st-text">${escHtml(body)}</div>`;
   const screen=item.cta&&ST_CTA_SCREENS.includes(item.cta.screen)?item.cta.screen:null;
   if(isLib){
     const cats=(TIPS_DATA&&TIPS_DATA.categories)||[];
@@ -221,10 +212,7 @@ function stCta(screen){
   closeStories();
   setTimeout(()=>navTo(screen),230);
 }
-async function stOpenTipsCat(id){
-  await openTipsLib();
-  openTipsCategory(id);
-}
+function stOpenTipsCat(id){openTipsLib(id);}
 
 // Удержание — пауза, свайп вниз — закрыть, свайп вбок — листать; кнопки в истории
 document.addEventListener('DOMContentLoaded',()=>{
@@ -266,95 +254,8 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 document.addEventListener('keydown',(e)=>{
   if(!document.getElementById('stories').classList.contains('open'))return;
-  if(document.getElementById('tips-lib').classList.contains('open'))return;
+  if(document.getElementById('tips-lib').classList.contains('open')||document.getElementById('tip-view').classList.contains('open'))return;
   if(e.key==='Escape')closeStories();
   else if(e.key==='ArrowRight'||e.key===' ')storyNext();
   else if(e.key==='ArrowLeft')storyPrev();
 });
-
-// === TIPS LIBRARY ===
-let TIPS_LIB_VIEW='categories'; // 'categories' | 'category'
-let TIPS_LIB_CAT=null;
-
-async function openTipsLib(){
-  const data=await fetchTips();
-  if(!data||!data.categories){showToast('Советы не загружены');return;}
-  TIPS_LIB_VIEW='categories';
-  TIPS_LIB_CAT=null;
-  renderTipsCategories(data);
-  const el=document.getElementById('tips-lib');
-  el.classList.add('open');
-  el.classList.remove('closing');
-  document.getElementById('tips-lib-title').textContent='Библиотека советов';
-}
-
-function closeTipsLib(){
-  if(TIPS_LIB_VIEW==='category'){
-    TIPS_LIB_VIEW='categories';
-    TIPS_LIB_CAT=null;
-    renderTipsCategories(TIPS_DATA);
-    document.getElementById('tips-lib-title').textContent='Библиотека советов';
-    return;
-  }
-  const el=document.getElementById('tips-lib');
-  el.classList.add('closing');
-  setTimeout(()=>{el.classList.remove('open','closing');},220);
-}
-
-function renderTipsCategories(data){
-  const wrap=document.getElementById('tips-lib-content');
-  let h='<div class="tips-cats">';
-  data.categories.forEach(cat=>{
-    const n=cat.tips?cat.tips.length:0;
-    const word=n===1?'совет':(n>=2&&n<=4?'совета':'советов');
-    h+=`<div class="tips-cat-card tc-${cat.color||'default'}" onclick="openTipsCategory('${cat.id}')">
-      <div class="tips-cat-emoji">${cat.emoji}</div>
-      <div class="tips-cat-name">${cat.name}</div>
-      <div class="tips-cat-count">${n} ${word}</div>
-    </div>`;
-  });
-  h+='</div>';
-  wrap.innerHTML=h;
-  wrap.scrollTop=0;
-}
-
-function openTipsCategory(catId){
-  if(!TIPS_DATA)return;
-  const cat=TIPS_DATA.categories.find(c=>c.id===catId);
-  if(!cat)return;
-  TIPS_LIB_VIEW='category';
-  TIPS_LIB_CAT=catId;
-  document.getElementById('tips-lib-title').textContent=cat.emoji+' '+cat.name;
-
-  const wrap=document.getElementById('tips-lib-content');
-  const cl='tlc-'+(cat.color||'default');
-  let h='<div class="tips-list">';
-  cat.tips.forEach((tip,i)=>{
-    h+=`<div class="tips-list-card ${cl}" onclick="openTipDetail('${catId}',${i})">
-      <div class="tips-list-title">${tip.title}</div>
-      <div class="tips-list-body">${tip.body}</div>
-    </div>`;
-  });
-  h+='</div>';
-  wrap.innerHTML=h;
-  wrap.scrollTop=0;
-}
-
-function openTipDetail(catId,tipIdx){
-  if(!TIPS_DATA)return;
-  const cat=TIPS_DATA.categories.find(c=>c.id===catId);
-  if(!cat||!cat.tips[tipIdx])return;
-  const tip=cat.tips[tipIdx];
-
-  document.getElementById('tip-detail-emoji').textContent=cat.emoji;
-  document.getElementById('tip-detail-title').textContent=tip.title;
-  document.getElementById('tip-detail-body').textContent=tip.detail||tip.body;
-
-  document.getElementById('tip-detail-overlay').classList.add('open');
-  document.getElementById('tip-detail').classList.add('open');
-}
-
-function closeTipDetail(){
-  document.getElementById('tip-detail').classList.remove('open');
-  document.getElementById('tip-detail-overlay').classList.remove('open');
-}

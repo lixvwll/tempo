@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tempo-v2.12';
+const CACHE_NAME = 'tempo-v2.13';
 const ASSETS = [
   '/tempo/',
   '/tempo/index.html',
@@ -14,6 +14,9 @@ const ASSETS = [
   '/tempo/modules/settings.js',
   '/tempo/modules/onboarding.js',
   '/tempo/modules/stories.js',
+  '/tempo/modules/tips.js',
+  '/tempo/news.json',
+  '/tempo/tips.json',
   '/tempo/modules/weight.js',
   '/tempo/modules/calories.js',
   '/tempo/modules/fit-engine.js',
@@ -51,9 +54,17 @@ self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET' || url.origin !== self.location.origin) return;
 
+  // Новости и советы: всегда свежие из сети, а без сети — последняя сохранённая копия
+  // (запросы идут с ?_=время, поэтому кэшируем по адресу без параметров)
   if (url.pathname.endsWith('news.json') || url.pathname.endsWith('tips.json')) {
+    const key = url.origin + url.pathname;
     e.respondWith(
-      fetch(e.request).catch(() => caches.match(e.request))
+      fetch(e.request)
+        .then(res => {
+          if (res.ok) { const copy = res.clone(); caches.open(CACHE_NAME).then(cache => cache.put(key, copy)); }
+          return res;
+        })
+        .catch(() => caches.match(key))
     );
     return;
   }
