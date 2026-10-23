@@ -77,6 +77,9 @@ function emptyData(name){
     created:todayKey(),
     lastVisit:null,
     points:0,
+    spent:0,          // потрачено в магазине дизайнов; баланс = points − spent
+    skin:'tochka',    // включённый дизайн
+    skins:['tochka'], // купленные дизайны
     streak:0,
     longestStreak:0,
     daysCount:0,
@@ -314,6 +317,10 @@ function migrateData(d){
   if(!d.calories)d.calories={goalKcal:0,log:{},savedFoods:[],age:null,gender:null,activity:null,setupDone:false};
   if(!d.calories.log)d.calories.log={};
   if(!d.calories.savedFoods)d.calories.savedFoods=[];
+  if(typeof d.spent!=='number')d.spent=0;
+  if(!Array.isArray(d.skins))d.skins=['tochka'];
+  if(!d.skins.includes('tochka'))d.skins.unshift('tochka');
+  if(!d.skin||!d.skins.includes(d.skin))d.skin='tochka';
   fitEnsure(d);
   return d;
 }
@@ -324,8 +331,8 @@ function setTheme(t){
   localStorage.setItem(THEME_KEY,t);
   if(DATA){DATA.theme=t;saveData();}
   document.querySelectorAll('.wt-btn').forEach(b=>b.classList.toggle('active',b.id==='wt-'+t));
-  const meta=document.getElementById('theme-color-meta');
-  if(meta)meta.setAttribute('content',t==='dark'?'#0e0e0e':'#fafaf8');
+  if(typeof updateThemeColor==='function')updateThemeColor();
+  if(document.getElementById('skin-shop')?.classList.contains('open'))renderShop();
 }
 function toggleTheme(){const cur=document.documentElement.getAttribute('data-theme');setTheme(cur==='dark'?'light':'dark');}
 
@@ -405,6 +412,7 @@ function getDayPoints(key){const l=DATA.pointsLog[key];return l?(l.pos-l.neg):0;
 function init(){
   loadTheme();
   DATA=loadData();
+  applySkin();
   if(!DATA){
     showScreen('welcome');
     document.getElementById('welcome-name').focus();
@@ -424,6 +432,7 @@ function startFresh(){
   if(!name){document.getElementById('welcome-name').focus();return;}
   DATA=emptyData(name);
   DATA.theme=document.documentElement.getAttribute('data-theme');
+  applySkin();
   DATA.lastVisit=todayKey();
   DATA.daysCount=1;
   DATA.streak=1;
@@ -464,7 +473,7 @@ function showReturning(){
   document.getElementById('ret-sub').textContent=subs[Math.floor(Math.random()*subs.length)];
   
   document.getElementById('ret-streak').textContent=DATA.streak||0;
-  document.getElementById('ret-pts').textContent=DATA.points||0;
+  document.getElementById('ret-pts').textContent=getBalance();
   document.getElementById('ret-days').textContent=DATA.daysCount||0;
   
   const bonusEl=document.getElementById('ret-bonus');
@@ -519,17 +528,22 @@ function navTo(screen){
 }
 
 function updateTopBar(){
+  // В плашке — баланс: заработано минус потрачено в магазине дизайнов
   const el=document.getElementById('tb-pts');
-  const todayPts=getDayPoints(todayKey());
-  const total=DATA.points||0;
-  el.textContent=total+(total===1?' балл':' баллов');
-  el.className='tb-pts'+(total>0?' pos':total<0?' neg':'');
+  const bal=getBalance();
+  el.textContent=skinPts(bal);
+  el.className='tb-pts'+(bal>0?' pos':bal<0?' neg':'');
+  const tm=document.getElementById('tm-balance');
+  if(tm)tm.textContent=bal;
 }
 
 function resetUser(){
   if(!confirm('Сбросить данные и начать заново? Это удалит всё. Сначала экспортируй данные если хочешь сохранить.'))return;
   localStorage.removeItem(STORAGE_KEY);
   DATA=null;
+  SKIN_TRIAL=null;
+  try{localStorage.removeItem(SKIN_KEY);}catch(e){}
+  applySkin();
   showScreen('welcome');
   document.getElementById('welcome-name').value='';
   document.getElementById('welcome-name').focus();

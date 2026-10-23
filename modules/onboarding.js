@@ -175,7 +175,7 @@ function renderOnbStep(){
     `).join('');
     box.innerHTML=`
       <div class="onb-step-dots">${dots}</div>
-      <div class="onb-icon">◇</div>
+      <div class="onb-icon">${ico('habits')}</div>
       <div class="onb-title">Выбери привычки</div>
       <div class="onb-sub">Выбери которые хочешь отслеживать. Потом можно добавить или убрать.</div>
       <div class="onb-quick-habit">${btns}</div>
@@ -204,7 +204,7 @@ function renderOnbStep(){
 
     box.innerHTML=`
       <div class="onb-step-dots">${dots}</div>
-      <div class="onb-icon">▤</div>
+      <div class="onb-icon">${ico('day')}</div>
       <div class="onb-title">Расписание пар</div>
       <div class="onb-sub" style="margin-bottom:16px;">Добавь пары — они будут появляться каждую неделю автоматически.</div>
 
@@ -234,7 +234,7 @@ function renderOnbStep(){
   }else if(onbStep===3){
     box.innerHTML=`
       <div class="onb-step-dots">${dots}</div>
-      <div class="onb-icon">●</div>
+      <div class="onb-icon">${ico('now')}</div>
       <div class="onb-title">Как работают баллы</div>
       <div class="onb-sub">За каждое действие начисляются или списываются баллы. Они показывают насколько хорошо проходит твой день.</div>
       <div class="onb-pts-row">

@@ -8,7 +8,7 @@ function renderSettings(){
 
   let html=`
     <div class="section-lbl" style="display:flex;align-items:center;justify-content:space-between;">
-      <span>⚙ Настройки</span>
+      <span class="sl-ico">${ico('settings')}Настройки</span>
       <button class="icon-btn" style="font-size:11px;color:var(--muted);" onclick="navTo('home')">← Назад</button>
     </div>
     <div class="section-lbl" style="margin-top:4px;">Профиль</div>
@@ -30,6 +30,7 @@ function renderSettings(){
           <button class="theme-btn${curTheme==='light'?' active':''}" onclick="setTheme('light')">Светлая</button>
         </div>
       </div>
+      ${renderSkinSettingRow()}
     </div>
 
     <div class="section-lbl" style="margin-top:4px;">Режим</div>
@@ -268,6 +269,8 @@ document.getElementById('import-file').addEventListener('change',function(e){
       if(!d.name)throw new Error('not valid');
       DATA=migrateData(d);
       saveData();
+      SKIN_TRIAL=null;
+      applySkin();
       if(DATA.theme)setTheme(DATA.theme);
       showToast('Данные загружены','good');
       showScreen('returning');
@@ -363,7 +366,7 @@ function openAbout(){
 
       <div class="about-section">
         <div class="about-section-title">Версия</div>
-        <div class="about-text" style="color:var(--muted);">Tempo 2.6 · Tempo Fit · Сделано с заботой о тебе</div>
+        <div class="about-text" style="color:var(--muted);">Tempo 2.7 · Дизайны за баллы · Сделано с заботой о тебе</div>
       </div>
     </div>
   `;

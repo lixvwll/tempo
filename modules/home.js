@@ -122,6 +122,8 @@ function renderHome(){
       </div>
     </div>
 
+    ${renderSkinTeaser()}
+
     <div class="cta-row">
       <button class="cta-btn" onclick="navTo('schedule')">Расписание</button>
       <button class="cta-btn" onclick="navTo('habits')">Привычки</button>

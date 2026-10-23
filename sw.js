@@ -1,9 +1,18 @@
-const CACHE_NAME = 'tempo-v2.13';
+const CACHE_NAME = 'tempo-v2.14';
 const ASSETS = [
   '/tempo/',
   '/tempo/index.html',
   '/tempo/style.css',
   '/tempo/logic.js',
+  '/tempo/modules/icons.js',
+  '/tempo/modules/shop.js',
+  '/tempo/fonts/fonts.css',
+  '/tempo/fonts/inter-tight-latin.woff2',
+  '/tempo/fonts/inter-tight-cyrillic.woff2',
+  '/tempo/favicon.svg',
+  '/tempo/icon-192.png',
+  '/tempo/icon-512.png',
+  '/tempo/apple-touch-icon.png',
   '/tempo/modules/ui.js',
   '/tempo/modules/home.js',
   '/tempo/modules/schedule.js',
@@ -27,6 +36,7 @@ const ASSETS = [
   '/tempo/app.js',
   '/tempo/manifest.json'
 ];
+// Шрифты остальных дизайнов не кэшируем заранее: они скачаются и закэшируются при первом использовании
 
 // Install — кэшируем все файлы
 self.addEventListener('install', e => {
