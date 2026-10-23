@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tempo-v2.9';
+const CACHE_NAME = 'tempo-v2.10';
 const ASSETS = [
   '/tempo/',
   '/tempo/index.html',
@@ -19,8 +19,6 @@ const ASSETS = [
   '/tempo/modules/fit-engine.js',
   '/tempo/modules/fit.js',
   '/tempo/modules/fit-player.js',
-  '/tempo/modules/support-brain.js',
-  '/tempo/modules/support.js',
   '/tempo/fit/exercises.json',
   '/tempo/fit/programs.json',
   '/tempo/app.js',
@@ -35,32 +33,17 @@ self.addEventListener('install', e => {
   self.skipWaiting();
 });
 
-// Activate — удаляем старый кэш
+// Activate — удаляем старый кэш (заодно и кэш модели отложенного чата поддержки)
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys =>
       Promise.all(
-        keys.filter(k => k !== CACHE_NAME && !k.startsWith('tempo-ai')).map(k => caches.delete(k))
+        keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
       )
     )
   );
   self.clients.claim();
 });
-
-// Изоляция страницы (COOP/COEP): нужна, чтобы нейросеть поддержки считала
-// в несколько потоков (SharedArrayBuffer). Все ресурсы Tempo — свои, так что
-// ничего не ломается. Включается со второй загрузки, когда SW уже активен.
-// На iPhone/iPad изоляция выключена: Safari там не тянет модель в несколько потоков,
-// а в режиме веб-приложения изоляция может давать белый экран
-const COI = !/iPhone|iPad|iPod/.test(self.navigator.userAgent);
-function withCOI(res) {
-  if (!COI || !res || res.status === 0 || res.type === 'opaque') return res;
-  const h = new Headers(res.headers);
-  h.set('Cross-Origin-Embedder-Policy', 'require-corp');
-  h.set('Cross-Origin-Opener-Policy', 'same-origin');
-  h.set('Cross-Origin-Resource-Policy', 'same-origin');
-  return new Response(res.body, { status: res.status, statusText: res.statusText, headers: h });
-}
 
 // Fetch — сначала сеть, при ошибке кэш
 // Для news.json всегда идём в сеть (свежий контент)
@@ -68,12 +51,9 @@ self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET' || url.origin !== self.location.origin) return;
 
-  // Куски модели (~640 МБ) чат кэширует сам — не дублируем их в кэше SW
-  if (url.pathname.includes('/ai/')) return;
-
   if (url.pathname.endsWith('news.json') || url.pathname.endsWith('tips.json')) {
     e.respondWith(
-      fetch(e.request).then(withCOI).catch(() => caches.match(e.request).then(withCOI))
+      fetch(e.request).catch(() => caches.match(e.request))
     );
     return;
   }
@@ -83,9 +63,9 @@ self.addEventListener('fetch', e => {
       .then(res => {
         const clone = res.clone();
         caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
-        return withCOI(res);
+        return res;
       })
-      .catch(() => caches.match(e.request).then(withCOI))
+      .catch(() => caches.match(e.request))
   );
 });
 
