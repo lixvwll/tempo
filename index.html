@@ -162,33 +162,22 @@
 <div class="toast-ach" id="toast-ach"><div class="ta-icon" id="ta-icon">★</div><div class="ta-info"><div class="ta-lbl">Достижение</div><div class="ta-name" id="ta-name"></div></div></div>
 
 <div class="stories" id="stories">
-  <div class="st-liquid-bg"></div>
-  <div class="st-caustics"></div>
-  <div class="st-orb st-orb-1"></div>
-  <div class="st-orb st-orb-2"></div>
-  <div class="st-orb st-orb-3"></div>
-  <canvas id="st-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;"></canvas>
-  <div class="st-progress-row" id="st-progress-row"></div>
-  <div class="st-header">
-    <div class="st-meta">
-      <div class="st-meta-icon" id="st-meta-icon">✨</div>
-      <div class="st-meta-text">
-        <div class="st-meta-name">Tempo</div>
-        <div class="st-meta-time" id="st-meta-time">сейчас</div>
+  <button class="st-nav" onclick="storyPrev()" aria-label="Назад">‹</button>
+  <div class="st-frame" id="st-frame">
+    <div class="st-bg"></div>
+    <div class="st-head">
+      <div class="st-bars" id="st-progress-row"></div>
+      <div class="st-row">
+        <div class="st-av">●</div>
+        <div class="st-who"><b>Tempo</b><span id="st-meta-time">совет</span></div>
+        <button class="st-x" onclick="closeStories()" aria-label="Закрыть">×</button>
       </div>
     </div>
-    <button class="st-close" onclick="closeStories()" aria-label="Закрыть">×</button>
+    <div class="st-tap l" onclick="stTap(-1)"></div>
+    <div class="st-tap r" onclick="stTap(1)"></div>
+    <div class="st-stage" id="st-stage"></div>
   </div>
-  <div class="st-body" id="st-body">
-    <div class="st-tap-prev" onclick="storyPrev()"></div>
-    <div class="st-tap-next" onclick="storyNext()"></div>
-    <div class="st-glass-card">
-      <div class="st-card-type"><span class="st-card-dot"></span><span id="st-card-type-label">совет</span></div>
-      <div class="st-emoji" id="st-emoji"></div>
-      <div class="st-title" id="st-title"></div>
-      <div class="st-text" id="st-text"></div>
-    </div>
-  </div>
+  <button class="st-nav" onclick="storyNext()" aria-label="Дальше">›</button>
 </div>
 
 <!-- Tips Library -->
