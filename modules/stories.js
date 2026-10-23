@@ -22,6 +22,7 @@ const TIPS_LIBRARY_CARD={
 };
 
 let TIPS_DATA=null;
+const ST_CTA_SCREENS=['home','schedule','habits','fit','stats','challenges','journal','settings'];
 
 async function fetchStories(){
   if(STORIES_DATA)return STORIES_DATA;
@@ -29,6 +30,9 @@ async function fetchStories(){
     const res=await fetch('news.json?_='+Date.now());
     if(!res.ok)throw new Error('not ok');
     const data=await res.json();
+    // сезонные истории сами исчезают после until и не показываются раньше from
+    const t=todayKey();
+    data.items=data.items.filter(i=>(!i.from||i.from<=t)&&(!i.until||i.until>=t));
     data.items.push(TIPS_LIBRARY_CARD);
     STORIES_DATA=data;
     return data;
@@ -99,24 +103,30 @@ function showStory(){
     metaTime.textContent='коллекция';
     if(typeLabel)typeLabel.textContent='коллекция';
   }else{
+    const label=item.kicker||(item.type==='update'?'обновление':'совет');
     metaIcon.textContent=item.type==='update'?'◆':'💡';
-    metaTime.textContent=item.type==='update'?'обновление':'совет';
-    if(typeLabel)typeLabel.textContent=item.type==='update'?'обновление':'совет';
+    metaTime.textContent=label.toLowerCase();
+    if(typeLabel)typeLabel.textContent=label;
   }
 
-  // Library card CTA button
+  // Кнопка: открыть библиотеку советов или нужный экран Tempo (cta.screen)
   let cta=document.getElementById('st-lib-cta');
+  if(!cta){
+    cta=document.createElement('button');
+    cta.id='st-lib-cta';
+    cta.className='st-lib-cta';
+    document.querySelector('.st-glass-card').appendChild(cta);
+  }
+  const screen=item.cta&&ST_CTA_SCREENS.includes(item.cta.screen)?item.cta.screen:null;
   if(isLib){
-    if(!cta){
-      cta=document.createElement('button');
-      cta.id='st-lib-cta';
-      cta.className='st-lib-cta';
-      cta.textContent='Открыть';
-      cta.onclick=()=>openTipsLib();
-      document.querySelector('.st-glass-card').appendChild(cta);
-    }
+    cta.textContent='Открыть';
+    cta.onclick=()=>openTipsLib();
     cta.style.display='';
-  }else if(cta){
+  }else if(screen){
+    cta.textContent=item.cta.label||'Открыть';
+    cta.onclick=e=>{e.stopPropagation();closeStories();setTimeout(()=>navTo(screen),230);};
+    cta.style.display='';
+  }else{
     cta.style.display='none';
   }
 

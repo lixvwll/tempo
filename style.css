@@ -924,7 +924,8 @@ textarea.field-inp{resize:vertical;min-height:60px;line-height:1.5;}
   text-align:center;
 }
 .st-glass-card{
-  position:relative;z-index:5;
+  /* выше зон «назад/вперёд», но тапы проходят сквозь — ловит их только кнопка */
+  position:relative;z-index:11;pointer-events:none;
   padding:28px 24px 24px;
   border-radius:28px;
   background:rgba(255,255,255,0.07);
@@ -996,7 +997,7 @@ textarea.field-inp{resize:vertical;min-height:60px;line-height:1.5;}
 /* Library CTA button on last story */
 .st-lib-cta{
   display:block;
-  margin-top:18px;
+  margin:18px auto 0;
   padding:12px 28px;
   border-radius:14px;
   border:none;
@@ -1011,7 +1012,7 @@ textarea.field-inp{resize:vertical;min-height:60px;line-height:1.5;}
   letter-spacing:-.01em;
   box-shadow:0 2px 12px rgba(0,0,0,0.1),inset 0 1px 0 rgba(255,255,255,0.2);
   transition:transform .15s,background .15s;
-  position:relative;z-index:12;
+  position:relative;z-index:12;pointer-events:auto;
 }
 .st-lib-cta:active{transform:scale(.96);background:rgba(255,255,255,0.22);}
 :root[data-theme="light"] .st-lib-cta{
