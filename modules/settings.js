@@ -366,7 +366,7 @@ function openAbout(){
 
       <div class="about-section">
         <div class="about-section-title">Версия</div>
-        <div class="about-text" style="color:var(--muted);">Tempo 2.7 · Дизайны за баллы · Сделано с заботой о тебе</div>
+        <div class="about-text" style="color:var(--muted);">Tempo 2.8 · Новая статистика · Сделано с заботой о тебе</div>
       </div>
     </div>
   `;

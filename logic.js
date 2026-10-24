@@ -333,6 +333,7 @@ function setTheme(t){
   document.querySelectorAll('.wt-btn').forEach(b=>b.classList.toggle('active',b.id==='wt-'+t));
   if(typeof updateThemeColor==='function')updateThemeColor();
   if(document.getElementById('skin-shop')?.classList.contains('open'))renderShop();
+  if(typeof CURRENT_SCREEN!=='undefined'&&CURRENT_SCREEN==='stats'&&document.getElementById('st2-ct'))renderStats();
 }
 function toggleTheme(){const cur=document.documentElement.getAttribute('data-theme');setTheme(cur==='dark'?'light':'dark');}
 
