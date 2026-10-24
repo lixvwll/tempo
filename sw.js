@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tempo-v2.15';
+const CACHE_NAME = 'tempo-v2.16';
 const ASSETS = [
   '/tempo/',
   '/tempo/index.html',
@@ -6,6 +6,7 @@ const ASSETS = [
   '/tempo/logic.js',
   '/tempo/modules/icons.js',
   '/tempo/modules/shop.js',
+  '/tempo/modules/joy.js',
   '/tempo/fonts/fonts.css',
   '/tempo/fonts/inter-tight-latin.woff2',
   '/tempo/fonts/inter-tight-cyrillic.woff2',

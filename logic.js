@@ -80,6 +80,14 @@ function emptyData(name){
     spent:0,          // потрачено в магазине дизайнов; баланс = points − spent
     skin:'tochka',    // включённый дизайн
     skins:['tochka'], // купленные дизайны
+    dayGoal:40,       // цель дня в баллах
+    sound:true,       // звуки и вибрация наград
+    level:1,          // последний отпразднованный уровень
+    goalDays:{},      // дни, когда цель дня взята
+    dayDone:{},       // дни, когда «Итог дня» забран
+    chests:{},        // открытые сундуки недели (ключ — понедельник)
+    freezes:0,        // заморозки серии
+    streakCel:null,   // последняя отпразднованная веха серии
     streak:0,
     longestStreak:0,
     daysCount:0,
@@ -294,7 +302,8 @@ function showAchievementToast(a){
   document.getElementById('ta-name').textContent=a.title;
   const t=document.getElementById('toast-ach');
   t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),3000);
+  if(typeof jyAchievementFx==='function')jyAchievementFx();
+  setTimeout(()=>t.classList.remove('show'),3200);
 }
 
 function saveData(){if(!DATA)return;localStorage.setItem(STORAGE_KEY,JSON.stringify(DATA));}
@@ -321,6 +330,14 @@ function migrateData(d){
   if(!Array.isArray(d.skins))d.skins=['tochka'];
   if(!d.skins.includes('tochka'))d.skins.unshift('tochka');
   if(!d.skin||!d.skins.includes(d.skin))d.skin='tochka';
+  if(!d.dayGoal)d.dayGoal=40;
+  if(d.sound===undefined)d.sound=true;
+  if(!d.dayDone)d.dayDone={};
+  if(!d.chests)d.chests={};
+  if(typeof d.freezes!=='number')d.freezes=0;
+  if(d.streakCel===undefined)d.streakCel=d.streak||null; // уже набранную серию не празднуем задним числом
+  if(!d.level)d.level=Math.floor(Math.sqrt(Math.max(0,d.points||0)/120))+1; // без ложного «нового уровня» при первом входе
+  if(!d.goalDays){d.goalDays={};const t=todayKey();for(let i=1;i<7;i++){const k=shiftDay(t,-i),l=(d.pointsLog||{})[k];if(l&&l.pos-l.neg>=d.dayGoal)d.goalDays[k]=true;}}
   fitEnsure(d);
   return d;
 }
@@ -406,6 +423,7 @@ function addPoints(n,reason,dayKey){
   DATA.pointsLog[k].events.push({n,reason,ts:Date.now()});
   saveData();
   checkAchievements();
+  if(typeof joyOnPoints==='function')joyOnPoints(n,reason);
 }
 
 function getDayPoints(key){const l=DATA.pointsLog[key];return l?(l.pos-l.neg):0;}
@@ -452,6 +470,9 @@ function showReturning(){
     DATA.daysCount=(DATA.daysCount||0)+1;
     if(last===shiftDay(today,-1)){
       DATA.streak=(DATA.streak||0)+1;
+    }else if(last===shiftDay(today,-2)&&(DATA.freezes||0)>0&&DATA.streak>0){
+      DATA.freezes--;DATA.streak=(DATA.streak||0)+1;
+      setTimeout(()=>showToast('❄️ Заморозка спасла серию — '+DATA.streak+' дн.','good'),1600);
     }else{
       DATA.streak=1;
     }
@@ -497,6 +518,7 @@ function goHome(){
     maybeShowWeeklySummary();
     setupNotifications();
     if(typeof checkStoriesUnread==='function')checkStoriesUnread();
+    if(typeof jyCheckStreak==='function'){jyCheckStreak();jyNext();}
   },800);
 }
 
@@ -517,7 +539,8 @@ function navTo(screen){
     }
   });
   if(HOME_TIMER){clearInterval(HOME_TIMER);HOME_TIMER=null;}
-  if(screen==='home')renderHome();
+  if(typeof jyNav==='function')jyNav();
+  if(screen==='home'){HOME_ENTER=true;renderHome();}
   else if(screen==='schedule')renderSchedule();
   else if(screen==='stats')renderStats();
   else if(screen==='challenges')renderChallenges();
@@ -532,7 +555,7 @@ function updateTopBar(){
   // В плашке — баланс: заработано минус потрачено в магазине дизайнов
   const el=document.getElementById('tb-pts');
   const bal=getBalance();
-  el.textContent=skinPts(bal);
+  if(!(typeof JY_PILL_HOLD!=='undefined'&&Date.now()<JY_PILL_HOLD))el.textContent=skinPts(bal);
   el.className='tb-pts'+(bal>0?' pos':bal<0?' neg':'');
   const tm=document.getElementById('tm-balance');
   if(tm)tm.textContent=bal;

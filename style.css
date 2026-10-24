@@ -1690,15 +1690,13 @@ body.fit-lock{overflow:hidden;}
 /* --- таб-бар по дизайнам --- */
 .bn-icon{display:grid;place-items:center;height:28px;min-width:48px;border-radius:99px;transition:background .2s,transform .25s cubic-bezier(.3,1.6,.5,1);}
 .bn-btn.active{font-weight:600;}
-:root[data-skin="ritm"] .bn-btn.active .bn-icon{background:var(--accent-soft);}
 :root[data-skin="metronom"] .bn-btn{position:relative;}
-:root[data-skin="metronom"] .bn-btn.active::after{content:'';position:absolute;bottom:0;left:50%;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--accent);}
 :root[data-skin="sticker"] .bn-btn{font-weight:700;}
 :root[data-skin="sticker"] .bn-btn.active{font-weight:900;}
 :root[data-skin="sticker"] .bn-btn.active .bn-icon{transform:scale(1.08) rotate(-4deg);}
 :root[data-skin="mono"] .bn-btn{font-family:var(--font-num);text-transform:uppercase;letter-spacing:.02em;font-size:8.5px;}
 :root[data-skin="mono"] .bn-icon{border-radius:4px;min-width:42px;}
-:root[data-skin="mono"] .bn-btn.active .bn-icon{background:var(--accent);color:var(--on-accent);}
+:root[data-skin="mono"] .bn-btn.active .bn-icon{color:var(--on-accent);}
 
 /* --- главная по дизайнам --- */
 :root[data-skin="ritm"] .now-card,:root[data-skin="sticker"] .now-card{border:0;color:#141414;position:relative;overflow:hidden;}
@@ -1999,4 +1997,243 @@ body.skin-trialing .toast,body.skin-trialing .toast-ach{bottom:calc(var(--nav-to
   .st2-enter .st2-rv,.st2-pop,.st2-flick,.st2-newb{animation:none!important;opacity:1}
   .st2-card{transition:none!important;opacity:1;transform:none}
   #ms-stats [data-h],#ms-stats [data-w],#ms-stats [data-ring],#ms-stats [data-pop],.st2-wl,.st2-sg i,.st2-more{transition:none!important}
+}
+
+/* ============================================================
+   РАДОСТЬ (modules/joy.js, modules/home.js)
+   Главная с целью дня, серией и сундуком; монеты, комбо, большие моменты.
+   ============================================================ */
+:root{--gold:#FFC83D;--jy-spring:cubic-bezier(.3,1.5,.5,1);--jy-out:cubic-bezier(.2,.8,.2,1)}
+:root[data-skin="sticker"]{--jy-spring:cubic-bezier(.2,1.9,.4,1)}
+:root[data-skin="mono"]{--gold:#D4FF3A;--jy-spring:steps(5,end)}
+:root[data-skin="metronom"]{--gold:#E5533D}
+:root[data-skin="tochka"]{--jy-bg:radial-gradient(120% 90% at 20% 0%,color-mix(in srgb,var(--gold) 20%,var(--surface)),var(--surface) 62%);--jy-ink:var(--text);--jy-sub:var(--muted);--jy-track:var(--surface3);--jy-gc:var(--text)}
+:root[data-skin="ritm"]{--jy-bg:linear-gradient(160deg,#A3F2DA,#22C7A0 78%,#139FC0 130%);--jy-ink:#141414;--jy-sub:rgba(0,0,0,.55);--jy-track:rgba(0,0,0,.14);--jy-gc:#141414}
+:root[data-skin="metronom"]{--jy-bg:#F3EDE2;--jy-ink:#1C1A17;--jy-sub:rgba(28,26,23,.55);--jy-track:rgba(28,26,23,.12);--jy-gc:#E5533D}
+:root[data-skin="sticker"]{--jy-bg:linear-gradient(150deg,#FFE68A,#FFB38A);--jy-ink:#141414;--jy-sub:rgba(0,0,0,.55);--jy-track:rgba(255,255,255,.6);--jy-gc:#141414}
+:root[data-skin="mono"]{--jy-bg:#0A0A0A;--jy-ink:#EDEDED;--jy-sub:#7a7a7a;--jy-track:#262626;--jy-gc:#D4FF3A}
+
+/* вход на главную */
+.jy-rv{opacity:1}
+.jy-enter .jy-rv{animation:jyIn .6s var(--jy-out) both;animation-delay:calc(var(--i,0) * 60ms)}
+@keyframes jyIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+:root[data-skin="mono"] .jy-enter .jy-rv{animation:jyInX .3s steps(6,end) both;animation-delay:calc(var(--i,0) * 50ms)}
+@keyframes jyInX{from{opacity:0;clip-path:inset(0 100% 0 0)}to{opacity:1;clip-path:inset(0)}}
+:root[data-skin="sticker"] .jy-enter .jy-rv{animation-name:jyInS}
+@keyframes jyInS{from{opacity:0;transform:translateY(18px) scale(.94) rotate(-1deg)}to{opacity:1;transform:none}}
+:root[data-skin="metronom"] :is(.jy-sec b,.jy-mo h2,.jy-now .t){font-style:italic;font-weight:600}
+:root[data-skin="sticker"] :is(.jy-sec b,.jy-mo h2){font-weight:900}
+
+.jy-hello{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;color:var(--muted);margin:2px 2px 10px}
+.jy-hello>span:first-child{font-weight:600;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jy-lvl{position:relative;flex-shrink:0;font-size:11px;font-weight:700;color:var(--text2);padding:4px 9px 6px;border-radius:99px;background:var(--surface);border:0.5px solid var(--border2);overflow:hidden;font-family:var(--font-num)}
+.jy-lvl i{position:absolute;left:0;bottom:0;height:2px;width:var(--p);background:var(--gold)}
+/* сцена: цель дня, серия, неделя */
+.jy-hero{border-radius:calc(var(--r2) + 8px);padding:16px;background:var(--jy-bg);color:var(--jy-ink);display:flex;gap:14px;align-items:center;position:relative;overflow:hidden;margin-bottom:12px;border:0.5px solid var(--border2)}
+:root[data-skin="mono"] .jy-hero{border-color:#2a2a2a}
+.jy-goal{width:128px;height:128px;flex-shrink:0;position:relative}
+.jy-goal svg{width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.jy-goal .arc{transition:stroke-dashoffset 1s var(--jy-spring),filter .4s}
+.jy-goal.hit .arc{filter:drop-shadow(0 0 7px var(--gold))}
+.jy-goal.hit{animation:jyGp 2.4s ease-in-out infinite}
+@keyframes jyGp{50%{transform:scale(1.035)}}
+.jy-goal .c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.jy-goal .c b{font-family:var(--font-num);font-size:34px;font-weight:800;letter-spacing:-.04em;line-height:1}
+.jy-goal .c small{font-size:11px;color:var(--jy-sub);margin-top:2px}
+.jy-goal .c em{font-style:normal;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--jy-sub);margin-top:5px}
+.jy-goal.hit .c em{color:var(--jy-ink)}
+.jy-side{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px}
+.jy-flame{display:flex;align-items:center;gap:8px}
+.jy-flame .f{font-size:32px;line-height:1;display:inline-block;animation:jyFlick 1.6s ease-in-out infinite;transform-origin:50% 90%}
+.jy-flame .f .ico{font-size:28px;color:var(--hot,#FF9F43)}
+.jy-flame.t2 .f{font-size:40px;filter:drop-shadow(0 0 10px color-mix(in srgb,var(--hot,#FF9F43) 70%,transparent))}
+@keyframes jyFlick{0%,100%{transform:scale(1) rotate(-3deg)}50%{transform:scale(1.08) rotate(3deg)}}
+.jy-flame b{display:block;font-family:var(--font-num);font-size:26px;font-weight:800;letter-spacing:-.04em;line-height:1}
+.jy-flame small{display:block;font-size:11px;color:var(--jy-sub)}
+.jy-wk{display:flex;align-items:center;gap:5px}
+.jy-wk i{width:14px;height:14px;border-radius:50%;background:var(--jy-track);flex-shrink:0}
+.jy-wk i.y{background:var(--jy-ink)}
+.jy-wk i.td{box-shadow:0 0 0 2px var(--jy-ink) inset;background:transparent}
+.jy-wk i.td.y{background:var(--jy-ink)}
+.jy-wk i.fu{opacity:.45}
+:root[data-skin="mono"] .jy-wk i{border-radius:1px}
+.jy-chestb{margin-left:3px;font-size:22px;line-height:1;filter:grayscale(1) opacity(.45);position:relative;background:none;border:0;padding:2px;cursor:pointer}
+.jy-chestb.ready{filter:none;animation:jyWig 1.4s ease-in-out infinite}
+.jy-chestb.ready::after{content:'';position:absolute;inset:-8px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--gold) 55%,transparent),transparent 65%);z-index:-1;animation:jyGlow 1.4s ease-in-out infinite}
+.jy-chestb.open{filter:none;opacity:.55}
+@keyframes jyWig{0%,60%,100%{transform:rotate(0)}70%{transform:rotate(-14deg) scale(1.1)}80%{transform:rotate(12deg) scale(1.1)}90%{transform:rotate(-6deg)}}
+@keyframes jyGlow{50%{opacity:.4;transform:scale(1.3)}}
+.jy-wkl{font-size:11px;color:var(--jy-sub);margin-top:-4px}
+.jy-finish{width:100%;height:54px;margin-bottom:12px;border:0;border-radius:calc(var(--r2) + 4px);font-family:inherit;font-size:16px;font-weight:800;color:#141414;cursor:pointer;
+  background:linear-gradient(110deg,var(--gold),color-mix(in srgb,var(--gold) 60%,#fff),var(--gold));background-size:220% 100%;animation:jyShine 2.2s linear infinite;box-shadow:0 10px 30px color-mix(in srgb,var(--gold) 40%,transparent)}
+:root[data-skin="mono"] .jy-finish{border-radius:3px}
+@keyframes jyShine{from{background-position:130% 0}to{background-position:-120% 0}}
+/* сейчас / дальше */
+.jy-now{background:var(--surface);border:0.5px solid var(--border2);border-radius:var(--r2);padding:14px 15px;margin-bottom:12px}
+.jy-now .k{display:flex;align-items:center;gap:7px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.jy-now .live{width:7px;height:7px;border-radius:50%;background:var(--hot,#FF9F43);animation:jyLive 1.6s ease-in-out infinite}
+@keyframes jyLive{50%{box-shadow:0 0 0 6px color-mix(in srgb,var(--hot,#FF9F43) 0%,transparent)}0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--hot,#FF9F43) 50%,transparent)}}
+.jy-now .row{display:flex;align-items:center;gap:12px;margin-top:8px}
+.jy-now .tx{flex:1;min-width:0}
+.jy-now .t{font-family:var(--font-display);font-size:18px;font-weight:700;letter-spacing:-.02em;line-height:1.2}
+.jy-now .m{font-size:12px;color:var(--muted);margin-top:3px}
+.jy-go{flex-shrink:0;height:40px;padding:0 14px;border:0;border-radius:99px;background:var(--accent);color:var(--on-accent,var(--bg));font-family:inherit;font-size:13.5px;font-weight:650;display:flex;align-items:center;gap:6px;cursor:pointer}
+.jy-go svg{width:15px;height:15px;stroke:currentColor}
+:root[data-skin="mono"] .jy-go{border-radius:3px}
+.jy-now .bar{height:5px;border-radius:3px;background:var(--surface3);margin-top:12px;overflow:hidden}
+.jy-now .bar i{display:block;height:100%;background:var(--hot,#FF9F43);border-radius:3px}
+/* привычки и дела */
+.jy-sec{display:flex;align-items:baseline;justify-content:space-between;margin:16px 2px 9px}
+.jy-sec b{font-family:var(--font-display);font-size:17px;font-weight:700;letter-spacing:-.02em}
+.jy-sec small{font-size:11.5px;color:var(--muted)}
+.jy-habs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.jy-hb{position:relative;overflow:hidden;background:var(--surface);border:0.5px solid var(--border2);border-radius:var(--r2);padding:12px;display:flex;align-items:center;gap:10px;text-align:left;font-family:inherit;color:var(--text);cursor:pointer;transition:transform .2s var(--jy-spring),border-color .4s}
+.jy-hb:active{transform:scale(.95)}
+.jy-hb .e{font-size:26px;line-height:1;flex-shrink:0;transition:transform .5s var(--jy-spring)}
+.jy-hb .tx{min-width:0}
+.jy-hb b{display:block;font-size:13px;font-weight:600;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.jy-hb .tx span{display:block;font-size:11px;color:var(--muted);margin-top:2px;font-family:var(--font-num)}
+.jy-hb::before{content:'';position:absolute;inset:0;background:color-mix(in srgb,var(--gold) 16%,transparent);transform:scale(0);border-radius:50%;transition:transform .55s var(--jy-out)}
+.jy-hb.y::before{transform:scale(2.4)}
+.jy-hb>*{position:relative}
+.jy-hb.y{border-color:color-mix(in srgb,var(--gold) 55%,transparent)}
+.jy-hb.y .e{transform:scale(1.12) rotate(-6deg)}
+.jy-hb .ok{position:absolute;top:7px;right:7px;width:18px;height:18px;border-radius:50%;background:var(--gold);display:grid;place-items:center;transform:scale(0);transition:transform .45s var(--jy-spring)}
+.jy-hb .ok svg{width:11px;height:11px;stroke:#141414}
+.jy-hb.y .ok{transform:scale(1)}
+.jy-hb.just.y{animation:jyJust .55s var(--jy-spring)}
+.jy-hb.just.y::before{animation:jyFill .55s var(--jy-out)}
+@keyframes jyJust{0%{transform:scale(.92)}50%{transform:scale(1.05)}100%{transform:scale(1)}}
+@keyframes jyFill{from{transform:scale(0)}to{transform:scale(2.4)}}
+:root[data-skin="mono"] .jy-hb .ok{border-radius:1px}
+.jy-ts{display:flex;flex-direction:column;gap:8px}
+.jy-tk{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface);border:0.5px solid var(--border2);border-radius:var(--r2);text-align:left;font-family:inherit;color:var(--text);cursor:pointer;width:100%;transition:transform .2s var(--jy-spring),opacity .5s}
+.jy-tk:active{transform:scale(.97)}
+.jy-tk .ck{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--border3);display:grid;place-items:center;flex-shrink:0;transition:background .3s,border-color .3s,transform .4s var(--jy-spring)}
+.jy-tk .ck svg{width:14px;height:14px;stroke:#141414;opacity:0}
+.jy-tk.y .ck{background:var(--gold);border-color:var(--gold)}
+.jy-tk.y .ck svg{opacity:1}
+.jy-tk.just.y .ck{animation:jyJust .55s var(--jy-spring)}
+.jy-tk .tx{flex:1;min-width:0}
+.jy-tk b{display:block;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.jy-tk .tx span{display:block;font-size:11.5px;color:var(--muted);margin-top:1px}
+.jy-tk .p{font-family:var(--font-num);font-size:12px;font-weight:800;color:var(--gold)}
+:root[data-skin="tochka"] .jy-tk .p,:root[data-skin="mono"][data-theme="light"] .jy-tk .p{color:var(--muted)}
+.jy-tk.y{opacity:.55}
+.jy-tk.y b{text-decoration:line-through}
+:root[data-skin="mono"] .jy-tk .ck{border-radius:2px}
+.jy-more,.jy-empty{width:100%;height:44px;border-radius:var(--r2);border:0.5px dashed var(--border3);background:none;color:var(--text2);font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer}
+.jy-empty{margin-top:12px}
+/* вода и fit */
+.jy-duo{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0 12px}
+.jy-wat,.jy-fit{position:relative;overflow:hidden;background:var(--surface);border:0.5px solid var(--border2);border-radius:var(--r2);padding:13px;text-align:left;min-height:112px;display:flex;flex-direction:column;font-family:inherit;color:var(--text);cursor:pointer}
+.jy-wat .lvl{position:absolute;left:0;right:0;bottom:0;height:var(--lv,0%);background:color-mix(in srgb,var(--info) 22%,transparent);transition:height .9s var(--jy-spring)}
+.jy-wat .plus{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;background:var(--text);color:var(--bg);display:grid;place-items:center;font-size:19px;font-weight:600;z-index:2}
+:root[data-skin="mono"] .jy-wat .plus{border-radius:3px}
+.jy-wat .k,.jy-fit .k{font-size:11.5px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:6px;position:relative}
+.jy-wat .v,.jy-fit .v{font-family:var(--font-num);font-size:22px;font-weight:700;letter-spacing:-.03em;margin-top:auto;position:relative}
+.jy-fit .v{font-family:var(--font-display);font-size:17px}
+.jy-wat .v small{font-family:var(--font-ui);font-size:12px;font-weight:500;color:var(--muted);letter-spacing:0}
+.jy-wat .s,.jy-fit .s{font-size:11.5px;color:var(--muted);position:relative}
+.jy-exp{display:flex;align-items:center;gap:10px;margin-top:12px;padding:10px 12px;border-radius:var(--r2);border:0.5px dashed var(--border3);font-size:12.5px;color:var(--text2)}
+.jy-exp .tx{flex:1}
+.jy-exp button{border:0;background:var(--text);color:var(--bg);font-family:inherit;font-size:12px;font-weight:650;padding:7px 12px;border-radius:99px;cursor:pointer}
+
+/* монеты, «+5», комбо, баннер цели */
+.jy-cv{position:fixed;inset:0;width:100vw;height:100vh;z-index:850;pointer-events:none}
+.jy-coin{position:fixed;left:0;top:0;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;z-index:860;pointer-events:none;
+  background:radial-gradient(circle at 35% 30%,#fffbe0,var(--gold) 50%,color-mix(in srgb,var(--gold) 55%,#000));box-shadow:0 0 10px color-mix(in srgb,var(--gold) 60%,transparent)}
+:root[data-skin="mono"] .jy-coin{border-radius:2px;background:var(--gold);box-shadow:none}
+.jy-plus{position:fixed;z-index:860;pointer-events:none;font-family:var(--font-num);font-weight:800;font-size:18px;color:var(--gold);text-shadow:0 2px 10px rgba(0,0,0,.35);transform:translate(-50%,-50%);animation:jyPlus .9s var(--jy-out) forwards}
+:root[data-skin="tochka"] .jy-plus{color:var(--text)}
+:root[data-theme="light"] .jy-plus{text-shadow:0 1px 0 rgba(0,0,0,.2)}
+@keyframes jyPlus{0%{opacity:0;transform:translate(-50%,-30%) scale(.6)}20%{opacity:1;transform:translate(-50%,-80%) scale(1.15)}100%{opacity:0;transform:translate(-50%,-260%) scale(1)}}
+.tb-pts.jy-bump{animation:jyPill .5s var(--jy-spring)}
+@keyframes jyPill{0%{transform:scale(1)}30%{transform:scale(1.2)}100%{transform:scale(1)}}
+.jy-combo{position:fixed;left:50%;top:calc(var(--safe-top) + 120px);z-index:830;pointer-events:none;text-align:center;animation:jyCombo .5s var(--jy-spring) forwards}
+.jy-combo b{display:block;font-family:var(--font-display);font-size:30px;font-weight:900;font-style:italic;letter-spacing:-.02em;color:var(--gold);text-shadow:0 4px 18px rgba(0,0,0,.4),0 0 24px color-mix(in srgb,var(--gold) 50%,transparent)}
+:root[data-skin="tochka"] .jy-combo b{color:var(--text)}
+.jy-combo i{display:block;height:5px;border-radius:3px;background:var(--gold);margin:6px auto 0;width:110px;transform-origin:left;animation:jyDrain 4s linear forwards}
+@keyframes jyCombo{0%{opacity:0;transform:translateX(-50%) scale(.3) rotate(-8deg)}100%{opacity:1;transform:translateX(-50%) scale(1) rotate(0)}}
+@keyframes jyDrain{to{transform:scaleX(0)}}
+.jy-ban{position:fixed;left:14px;right:14px;top:calc(var(--safe-top) + 64px);max-width:520px;margin:0 auto;z-index:820;border-radius:18px;padding:13px 16px;background:var(--text);color:var(--bg);display:flex;align-items:center;gap:12px;box-shadow:0 18px 40px rgba(0,0,0,.35);animation:jyBanIn .6s var(--jy-spring)}
+.jy-ban .e{font-size:30px}.jy-ban .e .ico{font-size:28px}
+.jy-ban b{display:block;font-family:var(--font-display);font-size:17px;font-weight:800}
+.jy-ban span{display:block;font-size:12.5px;opacity:.7;margin-top:1px}
+.jy-ban.out{animation:jyBanOut .4s var(--jy-out) forwards}
+@keyframes jyBanIn{from{transform:translateY(-160%) scale(.9)}}
+@keyframes jyBanOut{to{transform:translateY(-160%);opacity:0}}
+.jy-flash{position:fixed;inset:0;background:#fff;z-index:900;pointer-events:none;animation:jyFlash .5s ease-out forwards}
+@keyframes jyFlash{from{opacity:.65}to{opacity:0}}
+.jy-shake{animation:jyShake .45s cubic-bezier(.36,.07,.19,.97)}
+@keyframes jyShake{10%,90%{transform:translate(-1px,0)}20%,80%{transform:translate(3px,1px)}30%,50%,70%{transform:translate(-5px,-1px)}40%,60%{transform:translate(5px,1px)}}
+/* большие моменты */
+.jy-mo{position:fixed;inset:0;z-index:800;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:28px;overflow:hidden;
+  background:color-mix(in srgb,var(--bg) 80%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);animation:jyMoIn .35s var(--jy-out)}
+@keyframes jyMoIn{from{opacity:0}}
+.jy-mo.out{animation:jyMoOut .3s var(--jy-out) forwards}
+@keyframes jyMoOut{to{opacity:0;transform:scale(1.05)}}
+.jy-rays{position:absolute;left:50%;top:38%;width:680px;height:680px;margin:-340px 0 0 -340px;pointer-events:none;
+  background:repeating-conic-gradient(from 0deg,color-mix(in srgb,var(--gold) 26%,transparent) 0 9deg,transparent 9deg 22deg);
+  -webkit-mask:radial-gradient(circle,#000 8%,transparent 58%);mask:radial-gradient(circle,#000 8%,transparent 58%);animation:jySpin 14s linear infinite}
+@keyframes jySpin{to{transform:rotate(360deg)}}
+.jy-mo .jy-big{position:relative;font-size:96px;line-height:1;animation:jyBig .9s var(--jy-spring) both;filter:drop-shadow(0 16px 26px rgba(0,0,0,.3))}
+.jy-mo .jy-big .ico{font-size:96px;color:var(--hot,#FF9F43)}
+@keyframes jyBig{0%{transform:scale(0) rotate(-30deg);opacity:0}60%{transform:scale(1.2) rotate(6deg);opacity:1}100%{transform:none}}
+.jy-mo h2{position:relative;font-family:var(--font-display);font-size:32px;font-weight:800;letter-spacing:-.035em;line-height:1.05;margin-top:18px;animation:jyTx .6s var(--jy-out) .25s both;color:var(--text)}
+.jy-mo p{position:relative;font-size:14px;color:var(--text2);margin-top:8px;line-height:1.45;max-width:320px;animation:jyTx .6s var(--jy-out) .35s both}
+@keyframes jyTx{from{opacity:0;transform:translateY(14px)}}
+.jy-stars{position:relative;display:flex;gap:8px;align-items:flex-end}
+.jy-stars span{font-size:58px;line-height:1;filter:grayscale(1) opacity(.25);transform:scale(.8)}
+.jy-stars span:nth-child(2){font-size:76px;margin-bottom:10px}
+.jy-stars span.on{filter:none;animation:jyStar .6s var(--jy-spring) forwards}
+@keyframes jyStar{0%{transform:scale(.4) rotate(-40deg)}60%{transform:scale(1.35) rotate(10deg)}100%{transform:scale(1) rotate(0)}}
+.jy-ls{position:relative;display:flex;flex-direction:column;gap:6px;margin-top:16px;width:100%;max-width:300px}
+.jy-ls div{display:flex;justify-content:space-between;align-items:center;font-size:13.5px;padding:9px 12px;border-radius:12px;background:var(--surface);border:0.5px solid var(--border2);color:var(--text);animation:jyTx .5s var(--jy-out) both}
+.jy-ls div b{font-family:var(--font-num)}
+.jy-ls div.no{color:var(--muted)}
+.jy-rw{position:relative;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:16px;animation:jyTx .6s var(--jy-out) .5s both}
+.jy-rw span{font-size:12.5px;font-weight:700;padding:7px 11px;border-radius:99px;background:color-mix(in srgb,var(--gold) 20%,var(--surface));border:1px solid color-mix(in srgb,var(--gold) 50%,transparent);color:var(--text)}
+.jy-btn{position:relative;margin-top:22px;height:54px;min-width:220px;padding:0 26px;border:0;border-radius:99px;font-family:inherit;font-size:16px;font-weight:800;color:#141414;cursor:pointer;
+  background:linear-gradient(110deg,var(--gold),color-mix(in srgb,var(--gold) 55%,#fff),var(--gold));background-size:220% 100%;animation:jyShine 2.2s linear infinite,jyTx .6s var(--jy-out) .6s both;box-shadow:0 12px 30px color-mix(in srgb,var(--gold) 40%,transparent)}
+.jy-btn:disabled{opacity:.7}
+:root[data-skin="mono"] .jy-btn{border-radius:3px}
+.jy-skip{position:relative;margin-top:10px;border:0;background:none;font-family:inherit;font-size:13px;color:var(--muted);cursor:pointer;animation:jyTx .6s var(--jy-out) .7s both}
+.jy-lvb{position:relative;width:132px;height:132px;display:grid;place-items:center;animation:jyBig .9s var(--jy-spring) both}
+.jy-lvb svg{position:absolute;inset:0;width:100%;height:100%;filter:drop-shadow(0 14px 28px color-mix(in srgb,var(--gold) 45%,transparent))}
+.jy-lvb b{position:relative;font-family:var(--font-num);font-size:58px;font-weight:900;color:#141414;letter-spacing:-.05em}
+.jy-lvb b.flip{animation:jyFlip .8s var(--jy-spring)}
+@keyframes jyFlip{0%{transform:rotateX(0)}45%{transform:rotateX(90deg)}55%{transform:rotateX(-90deg)}100%{transform:rotateX(0)}}
+.jy-chest{position:relative;font-size:110px;line-height:1;cursor:pointer;animation:jyBig .9s var(--jy-spring) both;user-select:none;-webkit-user-select:none}
+.jy-chest.s1{animation:jyC1 .35s}.jy-chest.s2{animation:jyC2 .35s}.jy-chest.s3{animation:jyC3 .45s}
+@keyframes jyC1{25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}}
+@keyframes jyC2{25%{transform:rotate(-14deg) scale(1.08)}75%{transform:rotate(14deg) scale(1.08)}}
+@keyframes jyC3{20%{transform:rotate(-20deg) scale(1.15)}40%{transform:rotate(20deg) scale(1.2)}60%{transform:rotate(-20deg) scale(1.25)}80%{transform:rotate(20deg) scale(1.3)}}
+.jy-loot{position:relative;width:210px;padding:20px 16px;border-radius:24px;background:var(--surface);border:1.5px solid var(--gold);box-shadow:0 0 0 6px color-mix(in srgb,var(--gold) 16%,transparent),0 20px 50px rgba(0,0,0,.4);animation:jyLoot .8s var(--jy-spring);color:var(--text)}
+@keyframes jyLoot{0%{transform:scale(0) rotateY(180deg)}100%{transform:none}}
+.jy-loot .e{font-size:58px;line-height:1}
+.jy-loot b{display:block;font-family:var(--font-display);font-size:22px;font-weight:800;margin-top:10px}
+.jy-loot span{display:block;font-size:12.5px;color:var(--muted);margin-top:4px}
+.jy-loot small{display:inline-block;margin-top:10px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:3px 8px;border-radius:99px;background:var(--gold);color:#141414}
+/* достижение: блик и переворот значка */
+.toast-ach.jy-shine{border-color:var(--gold);box-shadow:0 14px 36px rgba(0,0,0,.35),0 0 0 4px color-mix(in srgb,var(--gold) 14%,transparent);overflow:hidden}
+.toast-ach.jy-shine::after{content:'';position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.35) 50%,transparent 65%);background-size:250% 100%;animation:jyShine 1.4s linear 2;pointer-events:none}
+.toast-ach.jy-shine .ta-icon{animation:jyFlipY .9s var(--jy-spring);background:color-mix(in srgb,var(--gold) 30%,var(--surface2))}
+@keyframes jyFlipY{from{transform:rotateY(180deg) scale(.4)}}
+/* таб-бар: бегущий индикатор под дизайн и «пружина» иконки */
+.bn-inner{position:relative}
+.bn-btn{position:relative;z-index:1}
+.jy-ind{position:absolute;left:0;top:0;pointer-events:none;display:flex;justify-content:center;transition:transform .45s var(--jy-spring),width .3s;z-index:0}
+.jy-ind i{display:block}
+:root[data-skin="tochka"] .jy-ind i{width:5px;height:5px;border-radius:50%;background:var(--text);margin-top:auto;margin-bottom:0;align-self:flex-end}
+:root[data-skin="ritm"] .jy-ind i{width:52px;height:30px;border-radius:99px;background:var(--accent-soft);margin-top:5px}
+:root[data-skin="metronom"] .jy-ind i{width:4px;height:4px;border-radius:50%;background:var(--accent);align-self:flex-end}
+:root[data-skin="sticker"] .jy-ind i{width:46px;height:34px;border-radius:14px;background:color-mix(in srgb,var(--accent) 30%,transparent);margin-top:3px;transform:rotate(-4deg)}
+:root[data-skin="mono"] .jy-ind i{width:44px;height:28px;border-radius:3px;background:var(--accent);margin-top:5px}
+:root[data-skin="mono"] .jy-ind{transition:transform .25s steps(4,end)}
+.bn-btn.jy-bumpi .bn-icon{animation:jyIco .45s var(--jy-spring)}
+@keyframes jyIco{0%{transform:scale(1)}40%{transform:scale(.8)}100%{transform:scale(1)}}
+@media(prefers-reduced-motion:reduce){
+  .jy-enter .jy-rv,.jy-goal.hit,.jy-flame .f,.jy-chestb.ready,.jy-finish,.jy-rays,.jy-btn,.jy-combo,.jy-ban,.bn-btn.jy-bumpi .bn-icon{animation:none!important}
+  .jy-ind,.jy-goal .arc{transition:none!important}
 }

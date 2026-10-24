@@ -33,6 +33,31 @@ function renderSettings(){
       ${renderSkinSettingRow()}
     </div>
 
+    <div class="section-lbl" style="margin-top:4px;">Награды</div>
+    <div class="set-card">
+      <div class="set-row">
+        <div>
+          <div class="set-label">Цель дня</div>
+          <div class="set-desc">5 дней с целью — сундук недели</div>
+        </div>
+        <div class="set-control">${[30,40,50,70].map(v=>`<button class="theme-btn${(DATA.dayGoal||40)===v?' active':''}" onclick="setDayGoal(${v})">${v}</button>`).join('')}</div>
+      </div>
+      <div class="set-row">
+        <div>
+          <div class="set-label">Звуки и вибрация</div>
+          <div class="set-desc">Ноты, монетки и фанфары при отметках и наградах</div>
+        </div>
+        <button class="icon-btn" onclick="toggleSound()">${DATA.sound===false?'Включить':'Выключить'}</button>
+      </div>
+      <div class="set-row">
+        <div>
+          <div class="set-label">Заморозки серии ❄️</div>
+          <div class="set-desc">Спасают серию, если пропустил один день · даются за вехи серии и в сундуках</div>
+        </div>
+        <span class="set-desc" style="font-size:15px;color:var(--text);font-weight:600">${DATA.freezes||0}</span>
+      </div>
+    </div>
+
     <div class="section-lbl" style="margin-top:4px;">Режим</div>
     <div class="set-card">
       <div class="set-row">
@@ -366,10 +391,13 @@ function openAbout(){
 
       <div class="about-section">
         <div class="about-section-title">Версия</div>
-        <div class="about-text" style="color:var(--muted);">Tempo 2.8 · Новая статистика · Сделано с заботой о тебе</div>
+        <div class="about-text" style="color:var(--muted);">Tempo 2.9 · Праздники и награды · Сделано с заботой о тебе</div>
       </div>
     </div>
   `;
   document.getElementById('panel').innerHTML=html;
   document.getElementById('overlay').classList.add('open');
 }
+
+function setDayGoal(v){DATA.dayGoal=v;saveData();renderSettings();showToast('Цель дня: '+v+' баллов');}
+function toggleSound(){DATA.sound=DATA.sound===false;saveData();renderSettings();if(DATA.sound&&typeof JYS!=='undefined')JYS.pop(4);}
